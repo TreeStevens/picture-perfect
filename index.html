@@ -64,6 +64,34 @@ html, body, span, label, div {
    3) THEMES
    ============================================================ */
 
+/* CULT – WITCH (basic black) */
+body.theme-witch {
+  --accent-main:      #c0a96a;
+  --accent-secondary: #82694a;
+  --accent-soft:      #e1d0a2;
+
+  --panel-bg:         #101216;
+  --panel-border:     rgba(255,255,255,0.18);
+
+  --accent-glow:      rgba(0,0,0,0.65);
+
+  --input-bg:         #191b22;
+  --icon-bg:          #191b22;
+
+  --text-main:        #f3f3f3;
+  --text-muted:       rgba(220,220,220,0.85);
+
+  /* near-black page */
+  --bg-top:           #050609;
+  --bg-mid:           #020204;
+  --bg-bottom:        #000000;
+
+  /* dark, almost flat canvas */
+  --canvas-top:       #14151b;
+  --canvas-mid:       #101118;
+  --canvas-bottom:    #07080c;
+}
+
 /* CULT – GOLD EMBER */
 body.theme-gold {
   --accent-main:      #ffbf3c;
@@ -148,13 +176,13 @@ body.theme-blood {
   --accent-secondary: #c21830;
   --accent-soft:      #ffc4c4;
 
-  --panel-bg:         rgba(40, 6, 10, 0.96);
+  --panel-bg:         #28060a;
   --panel-border:     rgba(255, 130, 140, 0.3);
 
   --accent-glow:      rgba(255, 70, 100, 0.75);
 
-  --input-bg:         rgba(46, 10, 16, 0.96);
-  --icon-bg:          rgba(52, 12, 18, 0.96);
+  --input-bg:         #2e0a10;
+  --icon-bg:          #2e0a10;
 
   --text-main:        #ffeef0;
   --text-muted:       rgba(255, 220, 225, 0.85);
@@ -168,7 +196,7 @@ body.theme-blood {
   --canvas-bottom:    #140106;
 }
 
-/* FLAT SLATE */
+/* FLAT SLATE — NO GLOW */
 body.theme-flat-slate {
   --accent-main:      #f0b35b;
   --accent-secondary: #c18a3f;
@@ -177,7 +205,7 @@ body.theme-flat-slate {
   --panel-bg:         #1f2128;
   --panel-border:     rgba(255, 255, 255, 0.12);
 
-  --accent-glow:      rgba(240, 179, 91, 0.35);
+  --accent-glow:      rgba(0,0,0,0); /* no glow */
 
   --input-bg:         #252831;
   --icon-bg:          #252831;
@@ -194,7 +222,7 @@ body.theme-flat-slate {
   --canvas-bottom:    #1d2027;
 }
 
-/* FLAT EMBER */
+/* FLAT EMBER — NO GLOW */
 body.theme-flat-ember {
   --accent-main:      #e08a5c;
   --accent-secondary: #b3653c;
@@ -203,7 +231,7 @@ body.theme-flat-ember {
   --panel-bg:         #251516;
   --panel-border:     rgba(255, 204, 174, 0.18);
 
-  --accent-glow:      rgba(224, 138, 92, 0.4);
+  --accent-glow:      rgba(0,0,0,0); /* no glow */
 
   --input-bg:         #2c1819;
   --icon-bg:          #2c1819;
@@ -222,9 +250,9 @@ body.theme-flat-ember {
 
 /* 1950s – Pastel Diner */
 body.theme-1950s {
-  --accent-main:      #87C987; /* mint */
-  --accent-secondary: #EFA5A6; /* soft pink */
-  --accent-soft:      #FACA78; /* butter yellow */
+  --accent-main:      #87C987;
+  --accent-secondary: #EFA5A6;
+  --accent-soft:      #FACA78;
 
   --panel-bg:         #3b2a2b;
   --panel-border:     rgba(249,229,218,0.35);
@@ -237,20 +265,20 @@ body.theme-1950s {
   --text-main:        #fff7f2;
   --text-muted:       rgba(249,229,218,0.9);
 
-  --bg-top:           #F9E5DA; /* cream */
-  --bg-mid:           #EFA5A6; /* pink */
-  --bg-bottom:        #87C987; /* mint */
+  --bg-top:           #F9E5DA;
+  --bg-mid:           #EFA5A6;
+  --bg-bottom:        #87C987;
 
-  --canvas-top:       #BCE0F5; /* sky */
+  --canvas-top:       #BCE0F5;
   --canvas-mid:       #F9E5DA;
   --canvas-bottom:    #EFA5A6;
 }
 
 /* 1960s – Psychedelic / Mod */
 body.theme-1960s {
-  --accent-main:      #F77C43; /* bright orange */
-  --accent-secondary: #A9D33E; /* lime green */
-  --accent-soft:      #C681CC; /* bold mauve */
+  --accent-main:      #F77C43;
+  --accent-secondary: #A9D33E;
+  --accent-soft:      #C681CC;
 
   --panel-bg:         #26203a;
   --panel-border:     rgba(211,190,71,0.35);
@@ -263,9 +291,9 @@ body.theme-1960s {
   --text-main:        #fdf5ff;
   --text-muted:       rgba(220,205,245,0.9);
 
-  --bg-top:           #D3BE47; /* sunny yellow */
-  --bg-mid:           #69AFAD; /* turquoise/teal */
-  --bg-bottom:        #C681CC; /* mauve/pink */
+  --bg-top:           #D3BE47;
+  --bg-mid:           #69AFAD;
+  --bg-bottom:        #C681CC;
 
   --canvas-top:       #69AFAD;
   --canvas-mid:       #F77C43;
@@ -274,9 +302,9 @@ body.theme-1960s {
 
 /* 1970s – Earthy Harvest */
 body.theme-1970s {
-  --accent-main:      #F4A127; /* mustard */
-  --accent-secondary: #E5771E; /* rust */
-  --accent-soft:      #FFECB4; /* warm cream */
+  --accent-main:      #F4A127;
+  --accent-secondary: #E5771E;
+  --accent-soft:      #FFECB4;
 
   --panel-bg:         #3b2617;
   --panel-border:     rgba(150,75,0,0.4);
@@ -289,20 +317,20 @@ body.theme-1970s {
   --text-main:        #fff6e6;
   --text-muted:       rgba(255,236,180,0.9);
 
-  --bg-top:           #FFECB4; /* warm cream */
-  --bg-mid:           #F4A127; /* harvest gold */
-  --bg-bottom:        #5A3D2B; /* chocolate brown */
+  --bg-top:           #FFECB4;
+  --bg-mid:           #F4A127;
+  --bg-bottom:        #5A3D2B;
 
-  --canvas-top:       #E5771E; /* rust */
-  --canvas-mid:       #964B00; /* 70s brown */
+  --canvas-top:       #E5771E;
+  --canvas-mid:       #964B00;
   --canvas-bottom:    #3a2315;
 }
 
 /* 1980s – Neon on Dark */
 body.theme-1980s {
-  --accent-main:      #FF6EC7; /* neon pink */
-  --accent-secondary: #1C75BC; /* electric blue */
-  --accent-soft:      #BF5FFF; /* bright purple */
+  --accent-main:      #FF6EC7;
+  --accent-secondary: #1C75BC;
+  --accent-soft:      #BF5FFF;
 
   --panel-bg:         #10192a;
   --panel-border:     rgba(32,61,87,0.5);
@@ -315,8 +343,8 @@ body.theme-1980s {
   --text-main:        #f0f4ff;
   --text-muted:       rgba(210,220,255,0.9);
 
-  --bg-top:           #203D57; /* dark navy base */
-  --bg-mid:           #1C75BC; /* blue */
+  --bg-top:           #203D57;
+  --bg-mid:           #1C75BC;
   --bg-bottom:        #000814;
 
   --canvas-top:       #000814;
@@ -326,9 +354,9 @@ body.theme-1980s {
 
 /* 1990s – Teal / Purple / Grunge */
 body.theme-1990s {
-  --accent-main:      #68C7C1; /* teal */
-  --accent-secondary: #508FBA; /* grape-ish blue */
-  --accent-soft:      #00FF33; /* acid green accent, used lightly */
+  --accent-main:      #68C7C1;
+  --accent-secondary: #508FBA;
+  --accent-soft:      #00FF33;
 
   --panel-bg:         #1e2628;
   --panel-border:     rgba(104,199,193,0.4);
@@ -341,12 +369,12 @@ body.theme-1990s {
   --text-main:        #e9f5f4;
   --text-muted:       rgba(210,230,230,0.9);
 
-  --bg-top:           #68C7C1; /* teal */
-  --bg-mid:           #508FBA; /* purple-blue */
-  --bg-bottom:        #01204E; /* denim */
+  --bg-top:           #68C7C1;
+  --bg-mid:           #508FBA;
+  --bg-bottom:        #01204E;
 
-  --canvas-top:       #354E52; /* dark gray */
-  --canvas-mid:       #01204E; /* denim */
+  --canvas-top:       #354E52;
+  --canvas-mid:       #01204E;
   --canvas-bottom:    #000509;
 }
 
@@ -459,6 +487,12 @@ body.theme-1990s {
 }
 #canvas.active { cursor: pointer; }
 
+/* override glow for flat themes: no glow, just subtle outline */
+body.theme-flat-slate #canvas,
+body.theme-flat-ember #canvas {
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.85);
+}
+
 /* ============================================================
    8) GM BAR
    ============================================================ */
@@ -529,6 +563,7 @@ body.theme-1990s {
 }
 
 /* swatch colors */
+.swatch-witch      { background: #050609; }
 .swatch-gold       { background: linear-gradient(135deg,#ffbf3c,#f06c1c); }
 .swatch-necro      { background: linear-gradient(135deg,#42ff9b,#0ad06b); }
 .swatch-eldritch   { background: linear-gradient(135deg,#d084ff,#7b3dff); }
@@ -544,7 +579,7 @@ body.theme-1990s {
 </style>
 </head>
 
-<body class="theme-gold">
+<body class="theme-witch">
 
 <header id="app-header">
   <h1>CULT OF DIRTY RPG PRESENTS: <span>PICTURE PERFECT</span></h1>
@@ -593,9 +628,13 @@ body.theme-1990s {
   <div class="row theme-row">
     <div class="theme-label">
       <span>Theme</span>
-      <span id="theme-name">Cult: Gold Ember</span>
+      <span id="theme-name">Cult: Witch</span>
     </div>
     <div class="theme-buttons">
+      <button class="theme-chip" data-theme="witch">
+        <span class="swatch swatch-witch"></span>
+        <span class="label">Cult – Witch</span>
+      </button>
       <button class="theme-chip" data-theme="gold">
         <span class="swatch swatch-gold"></span>
         <span class="label">Cult – Gold</span>
@@ -682,6 +721,7 @@ const colors = [
 ];
 
 const THEME_NAMES = {
+  "witch": "Cult: Witch",
   "gold": "Cult: Gold Ember",
   "necro": "Cult: Necro Green",
   "eldritch": "Cult: Eldritch Violet",
@@ -739,18 +779,18 @@ document.addEventListener("DOMContentLoaded", () => {
   element_copy_btn.addEventListener("click", copyCanvasToClipboard);
 
   updateCanvasSize();
-  setTheme("gold");
+  setTheme("witch");
 });
 
 function setTheme(theme) {
   const body = document.body;
   const themes = [
-    "gold","necro","eldritch","blood",
+    "witch","gold","necro","eldritch","blood",
     "flat-slate","flat-ember",
     "1950s","1960s","1970s","1980s","1990s"
   ];
   themes.forEach(t => body.classList.remove("theme-"+t));
-  if (!themes.includes(theme)) theme = "gold";
+  if (!themes.includes(theme)) theme = "witch";
   body.classList.add("theme-"+theme);
   if (themeNameEl) themeNameEl.textContent = THEME_NAMES[theme] || "Theme";
 }
