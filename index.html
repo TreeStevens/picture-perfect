@@ -5,7 +5,20 @@
     <title>Cult of Dirty RPG Presents: Picture Perfect</title>
 
     <style>
-      /* ========= 1. DARK BASE ========= */
+      /* 1) Global defaults for page + canvas (overridden by themes) */
+      :root {
+        /* Page background gradient */
+        --bg-top: #141827;
+        --bg-mid: #05060a;
+        --bg-bottom: #020308;
+
+        /* Canvas background gradient */
+        --canvas-top: #262c3f;
+        --canvas-mid: #0a0b16;
+        --canvas-bottom: #05050b;
+      }
+
+      /* ========= 2. DARK BASE ========= */
       html {
         width: 100%;
         height: 100%;
@@ -14,9 +27,9 @@
         font-size: 10px;
         background: radial-gradient(
           circle at top,
-          #141827 0,
-          #05060a 65%,
-          #020308 100%
+          var(--bg-top) 0,
+          var(--bg-mid) 65%,
+          var(--bg-bottom) 100%
         );
       }
 
@@ -51,9 +64,9 @@
         display: none;
       }
 
-      /* ========= 2. THEMES (BODY CLASSES) ========= */
+      /* ========= 3. THEMES (BODY CLASSES) ========= */
 
-      /* GOLD EMBER (default) */
+      /* 3.1 GOLD EMBER – warm gold on deep blue-black */
       body.theme-gold {
         --accent-main: #ffbf3c;
         --accent-secondary: #f06c1c;
@@ -69,9 +82,19 @@
 
         --text-main: #f5f5f5;
         --text-muted: rgba(245, 245, 245, 0.75);
+
+        /* page background */
+        --bg-top: #141827;
+        --bg-mid: #05060a;
+        --bg-bottom: #020308;
+
+        /* canvas background */
+        --canvas-top: #262c3f;
+        --canvas-mid: #0a0b16;
+        --canvas-bottom: #05050b;
       }
 
-      /* NECRO GREEN */
+      /* 3.2 NECRO GREEN – toxic cult lab */
       body.theme-necro {
         --accent-main: #38ff88;
         --accent-secondary: #14c76b;
@@ -87,9 +110,19 @@
 
         --text-main: #e8fff5;
         --text-muted: rgba(220, 255, 240, 0.8);
+
+        /* page background – greenish haze */
+        --bg-top: #04241b;
+        --bg-mid: #020e0a;
+        --bg-bottom: #010705;
+
+        /* canvas background – dim monitor glow */
+        --canvas-top: #104531;
+        --canvas-mid: #052018;
+        --canvas-bottom: #020c09;
       }
 
-      /* ELDRITCH VIOLET */
+      /* 3.3 ELDRITCH VIOLET – arcane void */
       body.theme-eldritch {
         --accent-main: #c273ff;
         --accent-secondary: #7b3dff;
@@ -105,9 +138,19 @@
 
         --text-main: #f4ecff;
         --text-muted: rgba(240, 225, 255, 0.8);
+
+        /* page background – purple-tinted void */
+        --bg-top: #1b0d2d;
+        --bg-mid: #0a0417;
+        --bg-bottom: #04010c;
+
+        /* canvas background – faint nebula */
+        --canvas-top: #3a2960;
+        --canvas-mid: #1b1238;
+        --canvas-bottom: #090415;
       }
 
-      /* BLOOD RITE */
+      /* 3.4 BLOOD RITE – ritual chamber */
       body.theme-blood {
         --accent-main: #ff3b3b;
         --accent-secondary: #c21830;
@@ -123,9 +166,19 @@
 
         --text-main: #ffeef0;
         --text-muted: rgba(255, 220, 225, 0.8);
+
+        /* page background – dark red fog */
+        --bg-top: #2a050a;
+        --bg-mid: #140206;
+        --bg-bottom: #080104;
+
+        /* canvas background – altar stone */
+        --canvas-top: #4a141b;
+        --canvas-mid: #26080d;
+        --canvas-bottom: #120306;
       }
 
-      /* ========= 3. HEADER ========= */
+      /* ========= 4. HEADER ========= */
 
       #app-header {
         flex: 0 0 100%;
@@ -155,7 +208,7 @@
         color: var(--text-muted);
       }
 
-      /* ========= 4. CONTROL PANEL ========= */
+      /* ========= 5. CONTROL PANEL ========= */
 
       #control {
         display: flex;
@@ -170,7 +223,7 @@
         box-shadow: 0 18px 40px rgba(0, 0, 0, 0.75);
       }
 
-      /* ========= 5. PREVIEW ========= */
+      /* ========= 6. PREVIEW ========= */
 
       #preview {
         display: flex;
@@ -191,18 +244,35 @@
         border-radius: 14px;
         background: radial-gradient(
           circle at top,
-          #262c3f 0,
-          #0a0b16 65%,
-          #05050b 100%
+          var(--canvas-top) 0,
+          var(--canvas-mid) 65%,
+          var(--canvas-bottom) 100%
         );
-        box-shadow: 0 22px 60px rgba(0, 0, 0, 0.9);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.8),
+          0 0 18px 2px var(--accent-glow);
       }
 
       #canvas.active {
         cursor: pointer;
       }
 
-      /* ========= 6. FORM ELEMENTS ========= */
+      /* GM helper bar under canvas */
+      #gm-helper {
+        margin-top: 8px;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: 600px;
+        font-size: 12px;
+        color: var(--text-muted);
+        gap: 8px;
+      }
+
+      #gm-helper span {
+        flex: 1 1 auto;
+      }
+
+      /* ========= 7. FORM ELEMENTS ========= */
 
       .row {
         align-items: center;
@@ -292,7 +362,15 @@
         filter: grayscale(0.3);
       }
 
-      /* ========= 7. THEME PICKER ========= */
+      /* smaller button variant for GM helper */
+      .button-small {
+        flex: 0 0 auto;
+        font-size: 12px;
+        height: 28px;
+        padding: 0 10px;
+      }
+
+      /* ========= 8. THEME PICKER ========= */
 
       .theme-row {
         margin-top: 8px;
@@ -340,7 +418,7 @@
     </style>
   </head>
 
-  <!-- IMPORTANT: default theme class here -->
+  <!-- default theme: GOLD -->
   <body class="theme-gold">
     <header id="app-header">
       <h1>Cult of Dirty RPG Presents:<span> Picture Perfect</span></h1>
@@ -438,6 +516,23 @@
         height="600"
         style="width: 600px; height: 600px"
       ></canvas>
+
+      <!-- GM helper bar: shortcuts + copy button -->
+      <div id="gm-helper">
+        <span>
+          CTRL+C: copy image • CTRL+Z: undo last tile • Theme buttons: change
+          colors
+        </span>
+        <button
+          class="button button-small"
+          id="copy-btn"
+          type="button"
+          title="Copy current image to clipboard"
+        >
+          Copy to clipboard
+        </button>
+      </div>
+
       <i id="natural_dimension"></i>
     </div>
 
@@ -454,6 +549,7 @@
       const element_generate = document.getElementById("generate");
       const element_start = document.getElementById("start");
       const element_stop = document.getElementById("stop");
+      const element_copy_btn = document.getElementById("copy-btn");
       const ctx = element_canvas.getContext("2d");
 
       const colors = [
@@ -538,6 +634,9 @@
           });
         });
 
+        // COPY BUTTON
+        element_copy_btn.addEventListener("click", handleCopyClick);
+
         updateCanvasSize();
       });
 
@@ -551,6 +650,20 @@
         } else {
           body.classList.add("theme-gold");
         }
+      }
+
+      function copyCanvasToClipboard() {
+        if (!source) return;
+        element_canvas.toBlob((blob) => {
+          if (!blob) return;
+          navigator.clipboard.write([
+            new ClipboardItem({ "image/png": blob }),
+          ]);
+        });
+      }
+
+      function handleCopyClick() {
+        copyCanvasToClipboard();
       }
 
       function handleKeyDown(event) {
@@ -572,11 +685,7 @@
 
         if (code === "CTRL+KeyC" && source) {
           event.preventDefault();
-          element_canvas.toBlob((blob) =>
-            navigator.clipboard.write([
-              new ClipboardItem({ "image/png": blob }),
-            ])
-          );
+          copyCanvasToClipboard();
         }
         if (code === "CTRL+KeyZ") {
           const index = quadrilateral_picked.pop();
@@ -846,7 +955,7 @@
           ctx.font = `${font_size}px Arial`;
           ctx.textBaseline = "middle";
           ctx.textAlign = "center";
-          ctx.fillStyle = "black";
+          ctx.fillStyle = "black"; // numbers stay black
           ctx.fillText(String(counter++), center.x, center.y);
         }
       }
