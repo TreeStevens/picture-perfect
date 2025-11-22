@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- 1) META & TITLE -->
     <meta charset="UTF-8" />
     <title>Cult of Dirty RPG Presents: Picture Perfect</title>
 
-    <!-- 2) STYLES: GLOBAL LAYOUT, DARK BASE, THEMES -->
     <style>
-      /* 2.1 DARK BASE BACKGROUND + FONT */
+      /* ========= 1. DARK BASE ========= */
       html {
         width: 100%;
         height: 100%;
@@ -22,7 +20,39 @@
         );
       }
 
-      /* 2.2 THEME VARIABLES BY BODY CLASS */
+      body {
+        flex: 1 1 auto;
+        overflow: auto;
+        margin: 16px;
+        padding: 0;
+        grid-column-gap: 24px;
+        font-size: 16px;
+        flex-flow: row wrap;
+        align-items: flex-start;
+        color: var(--text-main);
+      }
+
+      input,
+      select {
+        font-family: Verdana, sans-serif;
+      }
+
+      html,
+      body,
+      span,
+      label,
+      div {
+        display: flex;
+        position: relative;
+        box-sizing: border-box;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      /* ========= 2. THEMES (BODY CLASSES) ========= */
+
       /* GOLD EMBER (default) */
       body.theme-gold {
         --accent-main: #ffbf3c;
@@ -95,39 +125,8 @@
         --text-muted: rgba(255, 220, 225, 0.8);
       }
 
-      /* 2.3 BODY LAYOUT (USES ACTIVE THEME VARS) */
-      body {
-        flex: 1 1 auto;
-        overflow: auto;
-        margin: 16px;
-        padding: 0;
-        grid-column-gap: 24px;
-        font-size: 16px;
-        color: var(--text-main);
-        flex-flow: row wrap;
-        align-items: flex-start;
-      }
+      /* ========= 3. HEADER ========= */
 
-      input,
-      select {
-        font-family: Verdana, sans-serif;
-      }
-
-      html,
-      body,
-      span,
-      label,
-      div {
-        display: flex;
-        position: relative;
-        box-sizing: border-box;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      /* 3) HEADER BRANDING */
       #app-header {
         flex: 0 0 100%;
         flex-flow: column;
@@ -156,7 +155,8 @@
         color: var(--text-muted);
       }
 
-      /* 4) CONTROL PANEL CARD */
+      /* ========= 4. CONTROL PANEL ========= */
+
       #control {
         display: flex;
         flex: 0 0 280px;
@@ -170,7 +170,8 @@
         box-shadow: 0 18px 40px rgba(0, 0, 0, 0.75);
       }
 
-      /* 5) PREVIEW AREA */
+      /* ========= 5. PREVIEW ========= */
+
       #preview {
         display: flex;
         flex: 1 1 auto;
@@ -185,7 +186,6 @@
         color: var(--text-muted);
       }
 
-      /* 6) CANVAS LOOK */
       #canvas {
         border: 2px solid rgba(255, 255, 255, 0.12);
         border-radius: 14px;
@@ -202,13 +202,13 @@
         cursor: pointer;
       }
 
-      /* 7) ROW LAYOUT */
+      /* ========= 6. FORM ELEMENTS ========= */
+
       .row {
         align-items: center;
         grid-column-gap: 10px;
       }
 
-      /* 8) INPUT SHELLS */
       .input {
         flex: 1 0 auto;
         flex-flow: column;
@@ -234,7 +234,6 @@
         color: var(--text-main);
       }
 
-      /* 9) FILE ICON BUTTON */
       .icon-button {
         flex: 0 0 auto;
         font-size: 24px;
@@ -256,7 +255,6 @@
         transform: translateY(-1px);
       }
 
-      /* 10) MAIN BUTTONS */
       .button {
         flex: 1 0 auto;
         font-size: 14px;
@@ -294,7 +292,8 @@
         filter: grayscale(0.3);
       }
 
-      /* 11) THEME PICKER ROW */
+      /* ========= 7. THEME PICKER ========= */
+
       .theme-row {
         margin-top: 8px;
         justify-content: space-between;
@@ -326,34 +325,28 @@
         outline: 2px solid var(--accent-soft);
       }
 
-      /* Individual color previews for the buttons */
       .theme-button.gold {
         background: linear-gradient(135deg, #ffbf3c, #f06c1c);
       }
-
       .theme-button.necro {
         background: linear-gradient(135deg, #38ff88, #14c76b);
       }
-
       .theme-button.eldritch {
         background: linear-gradient(135deg, #c273ff, #7b3dff);
       }
-
       .theme-button.blood {
         background: linear-gradient(135deg, #ff3b3b, #c21830);
       }
     </style>
   </head>
 
-  <!-- default theme: GOLD -->
+  <!-- IMPORTANT: default theme class here -->
   <body class="theme-gold">
-    <!-- 12) HEADER CONTENT -->
     <header id="app-header">
       <h1>Cult of Dirty RPG Presents:<span> Picture Perfect</span></h1>
       <p>Load an image, generate the grid, then reveal it one click at a time.</p>
     </header>
 
-    <!-- 13) CONTROL PANEL -->
     <div id="control">
       <div class="row">
         <label class="input">
@@ -407,7 +400,6 @@
         <button class="button hidden" id="stop">Stop</button>
       </div>
 
-      <!-- 14) THEME PICKER (RIGHT-SIDE CHOICES FOR GM) -->
       <div class="row theme-row">
         <span class="theme-label">Theme</span>
         <div class="theme-buttons">
@@ -439,7 +431,6 @@
       </div>
     </div>
 
-    <!-- 15) PREVIEW & CANVAS -->
     <div id="preview">
       <canvas
         id="canvas"
@@ -450,7 +441,6 @@
       <i id="natural_dimension"></i>
     </div>
 
-    <!-- 16) SCRIPT: GAME LOGIC + THEME SWITCHING -->
     <script>
       const element_canvas = document.getElementById("canvas");
       const element_file_button = document.getElementById("file_button");
@@ -513,7 +503,8 @@
       let quadrilateral_list = [];
       let quadrilateral_picked = [];
 
-      window.onload = () => {
+      // Use DOMContentLoaded to ensure elements exist
+      document.addEventListener("DOMContentLoaded", () => {
         element_file_input.value = source;
         element_font_size.value = font_size;
         element_width.value = width;
@@ -538,20 +529,28 @@
 
         window.addEventListener("keydown", handleKeyDown);
 
-        /* THEME BUTTON LISTENERS */
-        const themeButtons = document.querySelectorAll("[data-theme]");
+        // THEME BUTTONS
+        const themeButtons = document.querySelectorAll(".theme-button");
         themeButtons.forEach((btn) => {
-          btn.addEventListener("click", () => setTheme(btn.dataset.theme));
+          btn.addEventListener("click", () => {
+            const theme = btn.getAttribute("data-theme");
+            setTheme(theme);
+          });
         });
 
         updateCanvasSize();
-      };
+      });
 
       function setTheme(theme) {
-        const themes = ["gold", "necro", "eldritch", "blood"];
         const body = document.body;
+        const themes = ["gold", "necro", "eldritch", "blood"];
         themes.forEach((t) => body.classList.remove("theme-" + t));
-        body.classList.add("theme-" + theme);
+
+        if (themes.includes(theme)) {
+          body.classList.add("theme-" + theme);
+        } else {
+          body.classList.add("theme-gold");
+        }
       }
 
       function handleKeyDown(event) {
@@ -606,4 +605,353 @@
           const quadrilateral = quadrilateral_list.at(i);
           if (
             !quadrilateral ||
-            quad
+            quadrilateral.checked ||
+            !inQuadrilateral({ x, y }, quadrilateral)
+          )
+            continue;
+          quadrilateral.checked = true;
+          quadrilateral_picked.push(i);
+          await drawImage();
+          drawQuadrilateralGrid();
+          return;
+        }
+      }
+
+      function handleFontSizeChange() {
+        font_size = element_font_size.value;
+        if (quadrilateral_list.length) handleGenerate();
+      }
+
+      function handleFileInputChange(event) {
+        source = event.target.value;
+        drawImage();
+        element_start.setAttribute("disabled", "");
+        element_generate.removeAttribute("disabled");
+      }
+
+      function handleFileBrowseChange(event) {
+        const file = event.target.files[0];
+        if (file?.type?.split("/")[0] !== "image") {
+          throw new Error("Cannot render non-image");
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => {
+          source = reader.result.toString();
+          element_file_browse.value = "";
+
+          drawImage();
+          element_start.setAttribute("disabled", "");
+          element_generate.removeAttribute("disabled");
+        };
+      }
+
+      function drawImage() {
+        const image = new Image();
+        image.src = source;
+        return new Promise((resolve, reject) => {
+          image.onload = () => {
+            const natural_dimension =
+              document.getElementById("natural_dimension");
+            natural_width = image.width;
+            natural_height = image.height;
+            if (natural_dimension)
+              natural_dimension.innerText = `Natural dimension: ${natural_width}x${natural_height}`;
+            ctx.drawImage(image, 0, 0, width, height);
+            resolve();
+          };
+          image.onerror = reject;
+        });
+      }
+
+      function handleSizeChange() {
+        width = element_width.value;
+        height = element_height.value;
+        element_canvas.width = width;
+        element_canvas.height = height;
+        element_canvas.style.width = `${width}px`;
+        element_canvas.style.height = `${height}px`;
+      }
+
+      function handleGridChange() {
+        quadrilateral_column = +element_column.value - 1;
+        quadrilateral_row = +element_row.value - 1;
+        if (quadrilateral_list.length) handleGenerate();
+      }
+
+      function handleGenerate() {
+        shuffle(colors);
+        generateQuadrilateralList();
+        drawQuadrilateralGrid();
+        element_start.removeAttribute("disabled");
+      }
+
+      function handleStart() {
+        running = true;
+        element_canvas.classList.add("active");
+        element_file_input.setAttribute("disabled", "");
+        element_file_button.setAttribute("disabled", "");
+        element_file_browse.setAttribute("disabled", "");
+        element_font_size.setAttribute("disabled", "");
+        element_width.setAttribute("disabled", "");
+        element_height.setAttribute("disabled", "");
+        element_row.setAttribute("disabled", "");
+        element_column.setAttribute("disabled", "");
+        element_generate.setAttribute("disabled", "");
+        element_start.classList.add("hidden");
+        element_stop.classList.remove("hidden");
+      }
+
+      function handleStop() {
+        running = false;
+        element_canvas.classList.remove("active");
+        element_file_input.removeAttribute("disabled");
+        element_file_button.removeAttribute("disabled");
+        element_file_browse.removeAttribute("disabled");
+        element_font_size.removeAttribute("disabled");
+        element_width.removeAttribute("disabled");
+        element_height.removeAttribute("disabled");
+        element_row.removeAttribute("disabled");
+        element_column.removeAttribute("disabled");
+        element_generate.removeAttribute("disabled");
+        element_stop.classList.add("hidden");
+        element_start.classList.remove("hidden");
+        drawImage();
+      }
+
+      function generateQuadrilateralList() {
+        quadrilateral_list.length = 0;
+        quadrilateral_picked.length = 0;
+        const width_fraction = width / (quadrilateral_column + 1);
+        const height_fraction = height / (quadrilateral_row + 1);
+        const vertical_line_list = [];
+        const horizontal_line_list = [];
+
+        vertical_line_list.push({
+          x1: 0,
+          y1: 0,
+          x2: 0,
+          y2: height,
+          formula: getLine(0, 0, 0, height),
+        });
+        horizontal_line_list.push({
+          x1: 0,
+          y1: 0,
+          x2: width,
+          y2: 0,
+          formula: getLine(0, width, 0, 0),
+        });
+
+        for (let i = 0; i < quadrilateral_column; i++) {
+          const x1 = getLinePoint(width_fraction, i);
+          const x2 = getLinePoint(width_fraction, i);
+          vertical_line_list.push({
+            x1,
+            y1: 0,
+            x2,
+            y2: height,
+            formula: getLine(x1, x2, 0, height),
+          });
+        }
+
+        for (let i = 0; i < quadrilateral_row; i++) {
+          const y1 = getLinePoint(height_fraction, i);
+          const y2 = getLinePoint(height_fraction, i);
+          horizontal_line_list.push({
+            x1: 0,
+            y1,
+            x2: width,
+            y2,
+            formula: getLine(0, width, y1, y2),
+          });
+        }
+        vertical_line_list.push({
+          x1: width,
+          y1: 0,
+          x2: width,
+          y2: height,
+          formula: getLine(width, width, 0, height),
+        });
+        horizontal_line_list.push({
+          x1: 0,
+          y1: height,
+          x2: width,
+          y2: height,
+          formula: getLine(0, width, height, height),
+        });
+
+        for (let j = 0; j < horizontal_line_list.length - 1; j++) {
+          for (let i = 0; i < vertical_line_list.length - 1; i++) {
+            const lv1 = vertical_line_list.at(i).formula;
+            const lv2 = vertical_line_list.at(i + 1).formula;
+            const lh1 = horizontal_line_list.at(j).formula;
+            const lh2 = horizontal_line_list.at(j + 1).formula;
+            const quad = generateQuadrilateral(lv1, lv2, lh1, lh2);
+            quadrilateral_list.push(quad);
+          }
+        }
+      }
+
+      function generateQuadrilateral(lv1, lv2, lh1, lh2) {
+        const top_left = getIntersection(lh1, lv1);
+        const top_right = getIntersection(lh1, lv2);
+        const bottom_left = getIntersection(lh2, lv1);
+        const bottom_right = getIntersection(lh2, lv2);
+
+        const mid_top_x = (top_right.x + top_left.x) / 2;
+        const mid_top_y = -(lh1.a * mid_top_x + lh1.c) / lh1.b;
+        const mid_bottom_x = (bottom_right.x + bottom_left.x) / 2;
+        const mid_bottom_y = -(lh2.a * mid_top_x + lh2.c) / lh2.b;
+        const x_line = getLine(mid_top_x, mid_bottom_x, mid_top_y, mid_bottom_y);
+
+        const mid_left_y = (top_left.y + bottom_left.y) / 2;
+        const mid_left_x = -(lv1.b * mid_left_y + lv1.c) / lv1.a;
+        const mid_right_y = (top_right.y + bottom_right.y) / 2;
+        const mid_right_x = -(lv2.b * mid_right_y + lv2.c) / lv2.a;
+        const y_line = getLine(mid_left_x, mid_right_x, mid_left_y, mid_right_y);
+        const center = getIntersection(x_line, y_line);
+
+        return {
+          top_left,
+          top_right,
+          bottom_left,
+          bottom_right,
+          center,
+          checked: false,
+        };
+      }
+
+      function drawQuadrilateralGrid() {
+        let counter = 1;
+        for (let i = 0; i < quadrilateral_list.length; i++) {
+          const {
+            top_left,
+            top_right,
+            bottom_left,
+            bottom_right,
+            center,
+            checked,
+          } = quadrilateral_list.at(i);
+          if (checked) continue;
+          ctx.beginPath();
+          ctx.moveTo(top_left.x - 0.5, top_left.y - 0.5);
+          ctx.lineTo(top_right.x + 0.5, top_right.y - 0.5);
+          ctx.lineTo(bottom_right.x + 0.5, bottom_right.y + 0.5);
+          ctx.lineTo(bottom_left.x - 0.5, bottom_left.y + 0.5);
+          ctx.closePath();
+          ctx.fillStyle = colors[i % (colors.length - 1)];
+          ctx.fill();
+
+          ctx.font = `${font_size}px Arial`;
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "center";
+          ctx.fillStyle = "black";
+          ctx.fillText(String(counter++), center.x, center.y);
+        }
+      }
+
+      function updateCanvasSize() {
+        const element = document.getElementById("canvas");
+        const width_element = document.getElementById("width");
+        const height_element = document.getElementById("height");
+        const widthVal = +width_element.value || 600;
+        const heightVal = +height_element.value || 600;
+
+        element.width = width_element.value = widthVal;
+        element.height = height_element.value = heightVal;
+        element.style.width = `${widthVal}px`;
+        element.style.height = `${heightVal}px`;
+      }
+
+      function inQuadrilateral(
+        point,
+        { top_left, top_right, bottom_left, bottom_right }
+      ) {
+        const diagonal_length = getLength(bottom_right, top_left);
+        const top_length = getLength(top_right, top_left);
+        const left_length = getLength(bottom_left, top_left);
+        const right_length = getLength(bottom_right, top_right);
+        const bottom_length = getLength(bottom_right, bottom_left);
+
+        const t_height_1 = getTriangleHeight(
+          bottom_length,
+          diagonal_length,
+          left_length
+        );
+        const t_height_2 = getTriangleHeight(
+          top_length,
+          diagonal_length,
+          right_length
+        );
+
+        const area = 0.5 * diagonal_length * (t_height_1 + t_height_2);
+
+        const t_area_1 = getTriangleArea(point, top_left, top_right);
+        const t_area_2 = getTriangleArea(point, top_right, bottom_right);
+        const t_area_3 = getTriangleArea(point, bottom_right, bottom_left);
+        const t_area_4 = getTriangleArea(point, bottom_left, top_left);
+
+        return (
+          Math.round(area) ===
+          Math.round(t_area_1 + t_area_2 + t_area_3 + t_area_4)
+        );
+      }
+
+      function getTriangleArea(p1, p2, p3) {
+        const a = getLength(p1, p2);
+        const b = getLength(p1, p3);
+        const c = getLength(p2, p3);
+        const p = (a + b + c) / 2;
+        return Math.sqrt(p * (p - a) * (p - b) * (p - c));
+      }
+
+      function getLength(p1, p2) {
+        return Math.sqrt(
+          Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)
+        );
+      }
+
+      function getTriangleHeight(a, b, c) {
+        const p1 = a + b + c;
+        const p2 = -a + b + c;
+        const p3 = a - b + c;
+        const p4 = a + b - c;
+        return (0.5 * Math.sqrt(p1 * p2 * p3 * p4)) / b;
+      }
+
+      function getLinePoint(frac, i) {
+        return Math.floor(Math.random() * frac + 1) + (i + 0.5) * frac;
+      }
+
+      function getLine(x1, x2, y1, y2) {
+        const a = y1 - y2;
+        const b = x2 - x1;
+        const c = x1 * y2 - x2 * y1;
+        return { a, b, c };
+      }
+
+      function getIntersection(l1, l2) {
+        const determinant = l1.a * l2.b - l2.a * l1.b;
+        return {
+          x: -((l2.b * l1.c - l1.b * l2.c) / determinant),
+          y: -((l1.a * l2.c - l2.a * l1.c) / determinant),
+        };
+      }
+
+      function shuffle(array) {
+        let currentIndex = array.length;
+
+        while (currentIndex > 0) {
+          const randomIndex = Math.floor(Math.random() * currentIndex--);
+          [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex],
+            array[currentIndex],
+          ];
+        }
+
+        return array;
+      }
+    </script>
+  </body>
+</html>
