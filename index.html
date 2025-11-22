@@ -1,178 +1,785 @@
-/* 3.1 Global base tweaks: darker background and better layout */
-html {
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  font-family: Verdana, sans-serif;
-  font-size: 10px;
-  background: radial-gradient(circle at top, #141827 0, #05060a 65%, #020308 100%);
-}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- 1) META & TITLE -->
+    <meta charset="UTF-8" />
+    <title>Cult of Dirty RPG Presents: Picture Perfect</title>
 
-body {
-  flex: 1 1 auto;
-  overflow: auto;
-  margin: 16px;
-  padding: 0;
-  grid-column-gap: 24px;
-  font-size: 16px;
-  color: #f5f5f5;
-  flex-flow: row wrap;        /* header on top, controls+preview below */
-  align-items: flex-start;
-}
+    <!-- 2) STYLES: GLOBAL LAYOUT & THEME -->
+    <style>
+      html {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        font-family: Verdana, sans-serif;
+        font-size: 10px;
+        background: radial-gradient(
+          circle at top,
+          #141827 0,
+          #05060a 65%,
+          #020308 100%
+        );
+      }
 
-/* 3.2 Keep your global flex behavior but let inner text look normal */
-html, body, span, label, div {
-  display: flex;
-  position: relative;
-  box-sizing: border-box;
-}
+      body {
+        flex: 1 1 auto;
+        overflow: auto;
+        margin: 16px;
+        padding: 0;
+        grid-column-gap: 24px;
+        font-size: 16px;
+        color: #f5f5f5;
+        flex-flow: row wrap;
+        align-items: flex-start;
+      }
 
-/* 3.3 Header styling for the new title */
-#app-header {
-  flex: 0 0 100%;
-  flex-flow: column;
-  align-items: flex-start;
-  margin-bottom: 18px;
-  gap: 4px;
-}
+      input,
+      select {
+        font-family: Verdana, sans-serif;
+      }
 
-#app-header h1 {
-  font-size: 22px;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: #ffe9b5;
-  text-shadow: 0 0 12px rgba(0, 0, 0, 0.9);
-}
+      html,
+      body,
+      span,
+      label,
+      div {
+        display: flex;
+        position: relative;
+        box-sizing: border-box;
+      }
 
-#app-header h1 span {
-  display: inline-flex;
-  margin-left: 4px;
-  font-weight: 800;
-}
+      .hidden {
+        display: none;
+      }
 
-#app-header p {
-  font-size: 13px;
-  opacity: 0.78;
-}
+      /* 3) HEADER BRANDING */
+      #app-header {
+        flex: 0 0 100%;
+        flex-flow: column;
+        align-items: flex-start;
+        margin-bottom: 18px;
+        gap: 4px;
+      }
 
-/* 3.4 Control panel card */
-#control {
-  display: flex;
-  flex: 0 0 260px;
-  flex-flow: column;
-  width: 260px;
-  grid-row-gap: 10px;
-  padding: 16px 18px 20px;
-  background: rgba(6, 7, 14, 0.96);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.75);
-}
+      #app-header h1 {
+        font-size: 22px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #ffe9b5;
+        text-shadow: 0 0 12px rgba(0, 0, 0, 0.9);
+      }
 
-/* 3.5 Preview/canvas area */
-#preview {
-  display: flex;
-  flex: 1 1 auto;
-  flex-flow: column;
-  align-items: center;
-  padding: 10px 0;
-}
+      #app-header h1 span {
+        display: inline-flex;
+        margin-left: 4px;
+        font-weight: 800;
+      }
 
-/* 3.6 Canvas styling: rounded, glow, subtle background */
-#canvas {
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-  background: radial-gradient(circle at top, #262c3f 0, #0a0b16 65%, #05050b 100%);
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.9);
-}
+      #app-header p {
+        font-size: 13px;
+        opacity: 0.78;
+      }
 
-#canvas.active {
-  cursor: pointer;
-}
+      /* 4) CONTROL PANEL CARD */
+      #control {
+        display: flex;
+        flex: 0 0 260px;
+        flex-flow: column;
+        width: 260px;
+        grid-row-gap: 10px;
+        padding: 16px 18px 20px;
+        background: rgba(6, 7, 14, 0.96);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.75);
+      }
 
-/* 3.7 Input rows */
-.row {
-  align-items: center;
-  grid-column-gap: 10px;
-}
+      /* 5) PREVIEW AREA */
+      #preview {
+        display: flex;
+        flex: 1 1 auto;
+        flex-flow: column;
+        align-items: center;
+        padding: 10px 0;
+      }
 
-/* 3.8 Input shells */
-.input {
-  flex: 1 0 auto;
-  flex-flow: column;
-  justify-content: space-between;
-  height: 36px;
-  background: rgba(10, 12, 20, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  padding: 2px 6px;
-  cursor: text;
-}
+      #natural_dimension {
+        margin-top: 8px;
+        font-size: 12px;
+        opacity: 0.75;
+      }
 
-.input span {
-  font-size: 11px;
-  opacity: 0.75;
-}
+      /* 6) CANVAS LOOK */
+      #canvas {
+        border: 2px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        background: radial-gradient(
+          circle at top,
+          #262c3f 0,
+          #0a0b16 65%,
+          #05050b 100%
+        );
+        box-shadow: 0 22px 60px rgba(0, 0, 0, 0.9);
+      }
 
-.input input {
-  background: transparent;
-  outline: none;
-  border: none;
-  padding: 0;
-  color: #f5f5f5;
-}
+      #canvas.active {
+        cursor: pointer;
+      }
 
-/* 3.9 File button/icon */
-.icon-button {
-  flex: 0 0 auto;
-  font-size: 24px;
-  width: 36px;
-  height: 36px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(10, 12, 20, 0.96);
-  cursor: pointer;
-  transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, background 0.08s ease-out;
-}
+      /* 7) ROW LAYOUT */
+      .row {
+        align-items: center;
+        grid-column-gap: 10px;
+      }
 
-.icon-button:hover {
-  background: rgba(22, 26, 42, 1);
-  box-shadow: 0 0 0 1px rgba(250, 190, 80, 0.35);
-  transform: translateY(-1px);
-}
+      /* 8) INPUT SHELLS */
+      .input {
+        flex: 1 0 auto;
+        flex-flow: column;
+        justify-content: space-between;
+        height: 36px;
+        background: rgba(10, 12, 20, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 6px;
+        padding: 2px 6px;
+        cursor: text;
+      }
 
-/* 3.10 Primary buttons */
-.button {
-  flex: 1 0 auto;
-  font-size: 14px;
-  height: 36px;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #ffbf3c, #f06c1c);
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: #1b1307;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65);
-  transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.08s ease-out;
-}
+      .input span {
+        font-size: 11px;
+        opacity: 0.75;
+      }
 
-.button:hover:enabled {
-  transform: translateY(-1px);
-  box-shadow: 0 9px 26px rgba(0, 0, 0, 0.8);
-  filter: brightness(1.05);
-}
+      .input input {
+        background: transparent;
+        outline: none;
+        border: none;
+        padding: 0;
+        color: #f5f5f5;
+      }
 
-.button:disabled {
-  color: rgba(255, 255, 255, 0.5);
-  background: linear-gradient(135deg, #5b5b5b, #3a3a3a);
-  box-shadow: none;
-  cursor: default;
-  filter: grayscale(0.3);
-}
+      /* 9) FILE ICON BUTTON */
+      .icon-button {
+        flex: 0 0 auto;
+        font-size: 24px;
+        width: 36px;
+        height: 36px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(10, 12, 20, 0.96);
+        cursor: pointer;
+        transition: transform 0.08s ease-out, box-shadow 0.08s ease-out,
+          background 0.08s ease-out;
+      }
+
+      .icon-button:hover {
+        background: rgba(22, 26, 42, 1);
+        box-shadow: 0 0 0 1px rgba(250, 190, 80, 0.35);
+        transform: translateY(-1px);
+      }
+
+      /* 10) MAIN BUTTONS */
+      .button {
+        flex: 1 0 auto;
+        font-size: 14px;
+        height: 36px;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #ffbf3c, #f06c1c);
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: #1b1307;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65);
+        transition: transform 0.08s ease-out, box-shadow 0.08s ease-out,
+          filter 0.08s ease-out;
+      }
+
+      .button:hover:enabled {
+        transform: translateY(-1px);
+        box-shadow: 0 9px 26px rgba(0, 0, 0, 0.8);
+        filter: brightness(1.05);
+      }
+
+      .button:disabled {
+        color: rgba(255, 255, 255, 0.5);
+        background: linear-gradient(135deg, #5b5b5b, #3a3a3a);
+        box-shadow: none;
+        cursor: default;
+        filter: grayscale(0.3);
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 11) HEADER CONTENT -->
+    <header id="app-header">
+      <h1>Cult of Dirty RPG Presents:<span> Picture Perfect</span></h1>
+      <p>Load an image, generate the grid, then reveal it one click at a time.</p>
+    </header>
+
+    <!-- 12) CONTROL PANEL -->
+    <div id="control">
+      <div class="row">
+        <label class="input">
+          <span>URL to image</span>
+          <input id="file_input" />
+        </label>
+        <label class="icon-button" id="file_button">
+          <span style="transform: rotate(270deg)">➥</span>
+          <input type="file" id="file_browse" class="hidden" />
+        </label>
+      </div>
+
+      <div class="row">
+        <label class="input">
+          <span>Font size</span>
+          <input id="font-size" type="number" min="10" max="30" />
+        </label>
+      </div>
+
+      <div class="row">
+        <label class="input">
+          <span>Width</span>
+          <input id="width" type="number" min="300" />
+        </label>
+      </div>
+
+      <div class="row">
+        <label class="input">
+          <span>Height</span>
+          <input id="height" type="number" min="300" />
+        </label>
+      </div>
+
+      <div class="row">
+        <label class="input">
+          <span>Columns</span>
+          <input id="column" type="number" min="1" />
+        </label>
+      </div>
+
+      <div class="row">
+        <label class="input">
+          <span>Rows</span>
+          <input id="row" type="number" min="1" />
+        </label>
+      </div>
+
+      <div class="row">
+        <button class="button" id="generate" disabled>Generate grid</button>
+        <button class="button" id="start" disabled>Start</button>
+        <button class="button hidden" id="stop">Stop</button>
+      </div>
+    </div>
+
+    <!-- 13) PREVIEW & CANVAS -->
+    <div id="preview">
+      <canvas
+        id="canvas"
+        width="600"
+        height="600"
+        style="width: 600px; height: 600px"
+      ></canvas>
+      <i id="natural_dimension"></i>
+    </div>
+
+    <!-- 14) SCRIPT: GAME LOGIC (UNCHANGED FUNCTIONALITY) -->
+    <script>
+      const element_canvas = document.getElementById("canvas");
+      const element_file_button = document.getElementById("file_button");
+      const element_file_input = document.getElementById("file_input");
+      const element_file_browse = document.getElementById("file_browse");
+      const element_font_size = document.getElementById("font-size");
+      const element_width = document.getElementById("width");
+      const element_height = document.getElementById("height");
+      const element_row = document.getElementById("row");
+      const element_column = document.getElementById("column");
+      const element_generate = document.getElementById("generate");
+      const element_start = document.getElementById("start");
+      const element_stop = document.getElementById("stop");
+      const ctx = element_canvas.getContext("2d");
+
+      const colors = [
+        "#1abc9c",
+        "#2ecc71",
+        "#3498db",
+        "#9b59b6",
+        "#16a085",
+        "#27ae60",
+        "#2980b9",
+        "#8e44ad",
+        "#f1c40f",
+        "#e67e22",
+        "#e74c3c",
+        "#30336b",
+        "#f39c12",
+        "#d35400",
+        "#c0392b",
+        "#ffbe76",
+        "#f9ca24",
+        "#f0932b",
+        "#eb4d4b",
+        "#6ab04c",
+        "#7ed6df",
+        "#22a6b3",
+        "#e056fd",
+        "#be2edd",
+        "#686de0",
+        "#4834d4",
+        "#badc58",
+        "#b33771",
+        "#6d214f",
+        "#9aecdb",
+        "#bdc581",
+        "#fc427b",
+      ];
+
+      let source = "";
+      let running = false;
+      let font_size = 16;
+      let width = 600;
+      let height = 600;
+      let natural_width = 0;
+      let natural_height = 0;
+      let quadrilateral_column = 4;
+      let quadrilateral_row = 4;
+      let quadrilateral_list = [];
+      let quadrilateral_picked = [];
+
+      window.onload = () => {
+        element_file_input.value = source;
+        element_font_size.value = font_size;
+        element_width.value = width;
+        element_height.value = height;
+        element_row.value = quadrilateral_column + 1;
+        element_column.value = quadrilateral_row + 1;
+
+        element_canvas.addEventListener("click", handleCanvasClick);
+        element_file_input.addEventListener("change", handleFileInputChange);
+        element_file_browse.addEventListener("change", handleFileBrowseChange);
+
+        element_font_size.addEventListener("change", handleFontSizeChange);
+        element_width.addEventListener("change", handleSizeChange);
+        element_height.addEventListener("change", handleSizeChange);
+
+        element_row.addEventListener("change", handleGridChange);
+        element_column.addEventListener("change", handleGridChange);
+
+        element_generate.addEventListener("click", handleGenerate);
+        element_start.addEventListener("click", handleStart);
+        element_stop.addEventListener("click", handleStop);
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        updateCanvasSize();
+      };
+
+      function handleKeyDown(event) {
+        let code = event.code;
+        if (
+          event.code !== "ControlLeft" &&
+          event.code !== "ControlRight" &&
+          event.ctrlKey
+        )
+          code = "CTRL+" + code;
+        if (
+          event.code !== "ShiftLeft" &&
+          event.code !== "ShiftRight" &&
+          event.shiftKey
+        )
+          code = "SHIFT+" + code;
+        if (event.code !== "AltLeft" && event.code !== "AltRight" && event.altKey)
+          code = "ALT+" + code;
+
+        if (code === "CTRL+KeyC" && source) {
+          event.preventDefault();
+          element_canvas.toBlob((blob) =>
+            navigator.clipboard.write([
+              new ClipboardItem({ "image/png": blob }),
+            ])
+          );
+        }
+        if (code === "CTRL+KeyZ") {
+          const index = quadrilateral_picked.pop();
+          const quad = quadrilateral_list.at(index);
+          if (quad !== undefined) {
+            quad.checked = false;
+            drawQuadrilateralGrid();
+          }
+        }
+      }
+
+      async function handleCanvasClick(event) {
+        if (!running) return;
+        const rect = event.target.getBoundingClientRect();
+        const x = event.pageX - rect.x - event.target.clientLeft;
+        const y = event.pageY - rect.y - event.target.clientTop;
+        if (
+          x < 0 ||
+          y < 0 ||
+          x > event.target.scrollWidth ||
+          y > event.target.scrollHeight
+        )
+          return;
+
+        for (let i = 0; i < quadrilateral_list.length; i++) {
+          const quadrilateral = quadrilateral_list.at(i);
+          if (
+            !quadrilateral ||
+            quadrilateral.checked ||
+            !inQuadrilateral({ x, y }, quadrilateral)
+          )
+            continue;
+          quadrilateral.checked = true;
+          quadrilateral_picked.push(i);
+          await drawImage();
+          drawQuadrilateralGrid();
+          return;
+        }
+      }
+
+      function handleFontSizeChange() {
+        font_size = element_font_size.value;
+        if (quadrilateral_list.length) handleGenerate();
+      }
+
+      function handleFileInputChange(event) {
+        source = event.target.value;
+        drawImage();
+        element_start.setAttribute("disabled", "");
+        element_generate.removeAttribute("disabled");
+      }
+
+      function handleFileBrowseChange(event) {
+        const file = event.target.files[0];
+        if (file?.type?.split("/")[0] !== "image") {
+          throw new Error("Cannot render non-image");
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => {
+          source = reader.result.toString();
+          element_file_browse.value = "";
+
+          drawImage();
+          element_start.setAttribute("disabled", "");
+          element_generate.removeAttribute("disabled");
+        };
+      }
+
+      function drawImage() {
+        const image = new Image();
+        image.src = source;
+        return new Promise((resolve, reject) => {
+          image.onload = () => {
+            const natural_dimension =
+              document.getElementById("natural_dimension");
+            natural_width = image.width;
+            natural_height = image.height;
+            if (natural_dimension)
+              natural_dimension.innerText = `Natural dimension: ${natural_width}x${natural_height}`;
+            ctx.drawImage(image, 0, 0, width, height);
+            resolve();
+          };
+          image.onerror = reject;
+        });
+      }
+
+      function handleSizeChange() {
+        width = element_width.value;
+        height = element_height.value;
+        element_canvas.width = width;
+        element_canvas.height = height;
+        element_canvas.style.width = `${width}px`;
+        element_canvas.style.height = `${height}px`;
+      }
+
+      function handleGridChange() {
+        quadrilateral_column = +element_column.value - 1;
+        quadrilateral_row = +element_row.value - 1;
+        if (quadrilateral_list.length) handleGenerate();
+      }
+
+      function handleGenerate() {
+        shuffle(colors);
+        generateQuadrilateralList();
+        drawQuadrilateralGrid();
+        element_start.removeAttribute("disabled");
+      }
+
+      function handleStart() {
+        running = true;
+        element_canvas.classList.add("active");
+        element_file_input.setAttribute("disabled", "");
+        element_file_button.setAttribute("disabled", "");
+        element_file_browse.setAttribute("disabled", "");
+        element_font_size.setAttribute("disabled", "");
+        element_width.setAttribute("disabled", "");
+        element_height.setAttribute("disabled", "");
+        element_row.setAttribute("disabled", "");
+        element_column.setAttribute("disabled", "");
+        element_generate.setAttribute("disabled", "");
+        element_start.classList.add("hidden");
+        element_stop.classList.remove("hidden");
+      }
+
+      function handleStop() {
+        running = false;
+        element_canvas.classList.remove("active");
+        element_file_input.removeAttribute("disabled");
+        element_file_button.removeAttribute("disabled");
+        element_file_browse.removeAttribute("disabled");
+        element_font_size.removeAttribute("disabled");
+        element_width.removeAttribute("disabled");
+        element_height.removeAttribute("disabled");
+        element_row.removeAttribute("disabled");
+        element_column.removeAttribute("disabled");
+        element_generate.removeAttribute("disabled");
+        element_stop.classList.add("hidden");
+        element_start.classList.remove("hidden");
+        drawImage();
+      }
+
+      function generateQuadrilateralList() {
+        quadrilateral_list.length = 0;
+        quadrilateral_picked.length = 0;
+        const width_fraction = width / (quadrilateral_column + 1);
+        const height_fraction = height / (quadrilateral_row + 1);
+        const vertical_line_list = [];
+        const horizontal_line_list = [];
+
+        vertical_line_list.push({
+          x1: 0,
+          y1: 0,
+          x2: 0,
+          y2: height,
+          formula: getLine(0, 0, 0, height),
+        });
+        horizontal_line_list.push({
+          x1: 0,
+          y1: 0,
+          x2: width,
+          y2: 0,
+          formula: getLine(0, width, 0, 0),
+        });
+
+        for (let i = 0; i < quadrilateral_column; i++) {
+          const x1 = getLinePoint(width_fraction, i);
+          const x2 = getLinePoint(width_fraction, i);
+          vertical_line_list.push({
+            x1,
+            y1: 0,
+            x2,
+            y2: height,
+            formula: getLine(x1, x2, 0, height),
+          });
+        }
+
+        for (let i = 0; i < quadrilateral_row; i++) {
+          const y1 = getLinePoint(height_fraction, i);
+          const y2 = getLinePoint(height_fraction, i);
+          horizontal_line_list.push({
+            x1: 0,
+            y1,
+            x2: width,
+            y2,
+            formula: getLine(0, width, y1, y2),
+          });
+        }
+        vertical_line_list.push({
+          x1: width,
+          y1: 0,
+          x2: width,
+          y2: height,
+          formula: getLine(width, width, 0, height),
+        });
+        horizontal_line_list.push({
+          x1: 0,
+          y1: height,
+          x2: width,
+          y2: height,
+          formula: getLine(0, width, height, height),
+        });
+
+        for (let j = 0; j < horizontal_line_list.length - 1; j++) {
+          for (let i = 0; i < vertical_line_list.length - 1; i++) {
+            const lv1 = vertical_line_list.at(i).formula;
+            const lv2 = vertical_line_list.at(i + 1).formula;
+            const lh1 = horizontal_line_list.at(j).formula;
+            const lh2 = horizontal_line_list.at(j + 1).formula;
+            const quad = generateQuadrilateral(lv1, lv2, lh1, lh2);
+            quadrilateral_list.push(quad);
+          }
+        }
+      }
+
+      function generateQuadrilateral(lv1, lv2, lh1, lh2) {
+        const top_left = getIntersection(lh1, lv1);
+        const top_right = getIntersection(lh1, lv2);
+        const bottom_left = getIntersection(lh2, lv1);
+        const bottom_right = getIntersection(lh2, lv2);
+
+        const mid_top_x = (top_right.x + top_left.x) / 2;
+        const mid_top_y = -(lh1.a * mid_top_x + lh1.c) / lh1.b;
+        const mid_bottom_x = (bottom_right.x + bottom_left.x) / 2;
+        const mid_bottom_y = -(lh2.a * mid_top_x + lh2.c) / lh2.b;
+        const x_line = getLine(mid_top_x, mid_bottom_x, mid_top_y, mid_bottom_y);
+
+        const mid_left_y = (top_left.y + bottom_left.y) / 2;
+        const mid_left_x = -(lv1.b * mid_left_y + lv1.c) / lv1.a;
+        const mid_right_y = (top_right.y + bottom_right.y) / 2;
+        const mid_right_x = -(lv2.b * mid_right_y + lv2.c) / lv2.a;
+        const y_line = getLine(mid_left_x, mid_right_x, mid_left_y, mid_right_y);
+        const center = getIntersection(x_line, y_line);
+
+        return {
+          top_left,
+          top_right,
+          bottom_left,
+          bottom_right,
+          center,
+          checked: false,
+        };
+      }
+
+      function drawQuadrilateralGrid() {
+        let counter = 1;
+        for (let i = 0; i < quadrilateral_list.length; i++) {
+          const {
+            top_left,
+            top_right,
+            bottom_left,
+            bottom_right,
+            center,
+            checked,
+          } = quadrilateral_list.at(i);
+          if (checked) continue;
+          ctx.beginPath();
+          ctx.moveTo(top_left.x - 0.5, top_left.y - 0.5);
+          ctx.lineTo(top_right.x + 0.5, top_right.y - 0.5);
+          ctx.lineTo(bottom_right.x + 0.5, bottom_right.y + 0.5);
+          ctx.lineTo(bottom_left.x - 0.5, bottom_left.y + 0.5);
+          ctx.closePath();
+          ctx.fillStyle = colors[i % (colors.length - 1)];
+          ctx.fill();
+
+          ctx.font = `${font_size}px Arial`;
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "center";
+          ctx.fillStyle = "black";
+          ctx.fillText(String(counter++), center.x, center.y);
+        }
+      }
+
+      function updateCanvasSize() {
+        const element = document.getElementById("canvas");
+        const width_element = document.getElementById("width");
+        const height_element = document.getElementById("height");
+        const width = +width_element?.value || 600;
+        const height = +height_element?.value || 600;
+
+        element.width = width_element.value = width;
+        element.height = height_element.value = height;
+        element.style.width = `${width}px`;
+        element.style.height = `${height}px`;
+      }
+
+      function inQuadrilateral(
+        point,
+        { top_left, top_right, bottom_left, bottom_right }
+      ) {
+        const diagonal_length = getLength(bottom_right, top_left);
+        const top_length = getLength(top_right, top_left);
+        const left_length = getLength(bottom_left, top_left);
+        const right_length = getLength(bottom_right, top_right);
+        const bottom_length = getLength(bottom_right, bottom_left);
+
+        const t_height_1 = getTriangleHeight(
+          bottom_length,
+          diagonal_length,
+          left_length
+        );
+        const t_height_2 = getTriangleHeight(
+          top_length,
+          diagonal_length,
+          right_length
+        );
+
+        const area = 0.5 * diagonal_length * (t_height_1 + t_height_2);
+
+        const t_area_1 = getTriangleArea(point, top_left, top_right);
+        const t_area_2 = getTriangleArea(point, top_right, bottom_right);
+        const t_area_3 = getTriangleArea(point, bottom_right, bottom_left);
+        const t_area_4 = getTriangleArea(point, bottom_left, top_left);
+
+        return (
+          Math.round(area) ===
+          Math.round(t_area_1 + t_area_2 + t_area_3 + t_area_4)
+        );
+      }
+
+      function getTriangleArea(p1, p2, p3) {
+        const a = getLength(p1, p2);
+        const b = getLength(p1, p3);
+        const c = getLength(p2, p3);
+        const p = (a + b + c) / 2;
+        return Math.sqrt(p * (p - a) * (p - b) * (p - c));
+      }
+
+      function getLength(p1, p2) {
+        return Math.sqrt(
+          Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)
+        );
+      }
+
+      function getTriangleHeight(a, b, c) {
+        const p1 = a + b + c;
+        const p2 = -a + b + c;
+        const p3 = a - b + c;
+        const p4 = a + b - c;
+        return (0.5 * Math.sqrt(p1 * p2 * p3 * p4)) / b;
+      }
+
+      function getLinePoint(frac, i) {
+        return Math.floor(Math.random() * frac + 1) + (i + 0.5) * frac;
+      }
+
+      function getLine(x1, x2, y1, y2) {
+        const a = y1 - y2;
+        const b = x2 - x1;
+        const c = x1 * y2 - x2 * y1;
+        return { a, b, c };
+      }
+
+      function getIntersection(l1, l2) {
+        const determinant = l1.a * l2.b - l2.a * l1.b;
+        return {
+          x: -((l2.b * l1.c - l1.b * l2.c) / determinant),
+          y: -((l1.a * l2.c - l2.a * l1.c) / determinant),
+        };
+      }
+
+      function shuffle(array) {
+        let currentIndex = array.length;
+
+        while (currentIndex > 0) {
+          const randomIndex = Math.floor(Math.random() * currentIndex--);
+          [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex],
+            array[currentIndex],
+          ];
+        }
+
+        return array;
+      }
+    </script>
+  </body>
+</html>
