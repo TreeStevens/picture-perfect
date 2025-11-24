@@ -1,715 +1,1110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NFL BEANO v5.0 - Pop Art</title>
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-    <!-- Fun Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Titan+One&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<title>Cult of Dirty RPG Presents: Picture Perfect</title>
 
-    <style>
-        :root {
-            --primary: #333;
-            --secondary: #555;
-            --accent: #fff;
-            --gold: #fbbf24;
-        }
+<style>
+/* ============================================================
+   1) GLOBAL VARIABLE DEFAULTS (overridden by theme classes)
+   ============================================================ */
+:root {
+  --bg-top: #141827;
+  --bg-mid: #05060a;
+  --bg-bottom: #020308;
 
-        * { box-sizing: border-box; }
+  --canvas-top: #262c3f;
+  --canvas-mid: #0a0b16;
+  --canvas-bottom: #05050b;
+}
 
-        body {
-            margin: 0; padding: 0;
-            font-family: 'Fredoka', sans-serif;
-            /* Split Background Effect (Blue / Purple vibe from image) */
-            background: linear-gradient(90deg, #0055ff 50%, #4400cc 50%);
-            background-attachment: fixed;
-            color: #333;
-            overflow-x: hidden;
-        }
+/* ============================================================
+   2) BASE LAYOUT
+   ============================================================ */
+html {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  font-family: Verdana, sans-serif;
+  font-size: 10px;
+}
 
-        /* Mobile background tweak */
-        @media (max-width: 900px) {
-            body { background: #0055ff; }
-        }
+body {
+  flex: 1 1 auto;
+  overflow: auto;
+  margin: 16px;
+  padding: 0;
+  grid-column-gap: 24px;
+  font-size: 16px;
+  flex-flow: row wrap;
+  align-items: flex-start;
+  color: var(--text-main);
 
-        /* --- LOBBY --- */
-        #lobby {
-            min-height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-            background: rgba(0,0,0,0.85);
-            position: fixed; top: 0; left: 0; width: 100%; z-index: 2000;
-            backdrop-filter: blur(8px);
-        }
-        .lobby-panel {
-            background: white;
-            padding: 40px;
-            border-radius: 30px;
-            width: 90%; max-width: 500px;
-            text-align: center;
-            box-shadow: 0 20px 0px rgba(0,0,0,0.2);
-            border: 6px solid #fff;
-        }
-        .lobby-panel h1 { font-family: 'Titan One', cursive; font-size: 3rem; margin: 0; color: #0055ff; text-transform: uppercase; letter-spacing: 2px; }
-        
-        .input-group { margin: 20px 0; text-align: left; }
-        .input-group label { display: block; font-weight: 800; color: #555; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        select, input {
-            width: 100%; padding: 15px;
-            border: 3px solid #eee; border-radius: 12px;
-            font-size: 1.1rem; font-family: 'Fredoka', sans-serif; font-weight: 700;
-            outline: none;
-        }
-        select:focus, input:focus { border-color: #0055ff; }
+  background: radial-gradient(
+    circle at top,
+    var(--bg-top) 0,
+    var(--bg-mid) 65%,
+    var(--bg-bottom) 100%
+  );
+}
 
-        button {
-            width: 100%; padding: 15px;
-            border: none; border-radius: 15px;
-            font-family: 'Titan One', cursive; font-size: 1.5rem; letter-spacing: 1px;
-            cursor: pointer; transform: translateY(0); transition: 0.1s;
-            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
-            margin-top: 10px;
-        }
-        button:active { transform: translateY(6px); box-shadow: none; }
-        .btn-host { background: #ff4757; color: white; }
-        .btn-join { background: #2ed573; color: white; }
+input, select {
+  font-family: Verdana, sans-serif;
+}
 
-        /* --- GAME LAYOUT --- */
-        #game-ui {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 40px;
-            padding: 40px 20px;
-            min-height: 100vh;
-        }
+html, body, span, label, div {
+  display: flex;
+  position: relative;
+  box-sizing: border-box;
+}
 
-        /* --- PLAYER ZONE (The wrapper around cards) --- */
-        .player-zone {
-            background-color: var(--primary); /* Dynamic Team Color */
-            border-radius: 30px;
-            padding: 30px;
-            width: auto;
-            min-width: 350px;
-            max-width: 100%;
-            border: 8px solid white;
-            box-shadow: 0 15px 0 rgba(0,0,0,0.25);
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+.hidden { display: none; }
 
-        /* The Confetti Background Pattern */
-        .player-zone::before {
-            content: ""; position: absolute; inset: 0;
-            background-image: 
-                radial-gradient(circle, rgba(255,255,255,0.15) 15%, transparent 16%),
-                radial-gradient(circle, rgba(255,255,255,0.15) 15%, transparent 16%);
-            background-size: 40px 40px;
-            background-position: 0 0, 20px 20px;
-            pointer-events: none;
-        }
-        .player-zone::after {
-            content: ""; position: absolute; inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='20' viewBox='0 0 100 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 Q 25 20 50 10 T 100 10' stroke='white' fill='none' stroke-width='4' opacity='0.15'/%3E%3C/svg%3E");
-            background-size: 100px 50px;
-            opacity: 0.4; pointer-events: none;
-        }
+/* ============================================================
+   3) THEMES
+   ============================================================ */
 
-        /* --- PLAYER HEADER --- */
-        .zone-header {
-            position: relative; z-index: 5;
-            display: flex; flex-direction: column; align-items: center;
-            margin-bottom: 20px;
-            margin-top: -50px; /* Pop out effect */
-        }
+/* CULT – WITCH (basic black) */
+body.theme-witch {
+  --accent-main:      #c0a96a;
+  --accent-secondary: #82694a;
+  --accent-soft:      #e1d0a2;
 
-        .team-logo {
-            width: 110px; height: 110px;
-            background: white;
-            border-radius: 50%;
-            border: 5px solid white;
-            object-fit: contain;
-            padding: 5px;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-            margin-bottom: 10px;
-            transform: translateY(40px); /* Push down to overlap border */
-        }
+  --panel-bg:         #101216;
+  --panel-border:     rgba(255,255,255,0.18);
 
-        .player-name {
-            color: white; font-family: 'Titan One', cursive;
-            font-size: 2.5rem; text-shadow: 3px 3px 0 rgba(0,0,0,0.3);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-top: 10px;
-            z-index: 6;
-        }
+  --accent-glow:      rgba(0,0,0,0.65);
 
-        /* --- CARD LAYOUT --- */
-        .cards-row {
-            position: relative; z-index: 5;
-            display: flex; flex-wrap: wrap; gap: 20px;
-            justify-content: center;
-        }
+  --input-bg:         #191b22;
+  --icon-bg:          #191b22;
 
-        .card-wrapper {
-            display: flex; flex-direction: column; gap: 10px;
-            width: 300px; /* Fixed readable width */
-        }
+  --text-main:        #f3f3f3;
+  --text-muted:       rgba(220,220,220,0.85);
 
-        /* --- THE BINGO CARD ITSELF --- */
-        .bingo-card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 8px 0 rgba(0,0,0,0.1);
-            border: 4px solid white;
-        }
+  /* near-black page */
+  --bg-top:           #050609;
+  --bg-mid:           #020204;
+  --bg-bottom:        #000000;
 
-        .card-title {
-            background: var(--secondary); /* Dynamic */
-            color: white;
-            text-align: center; font-weight: 900;
-            padding: 8px; font-size: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+  /* dark, almost flat canvas */
+  --canvas-top:       #14151b;
+  --canvas-mid:       #101118;
+  --canvas-bottom:    #07080c;
+}
 
-        .grid {
-            display: grid; grid-template-columns: repeat(5, 1fr);
-            gap: 2px; background: #fff; 
-            aspect-ratio: 1/1;
-        }
+/* CULT – GOLD EMBER */
+body.theme-gold {
+  --accent-main:      #ffbf3c;
+  --accent-secondary: #f06c1c;
+  --accent-soft:      #ffe9b5;
 
-        .cell {
-            background: var(--primary); /* Defaults to team primary */
-            display: flex; align-items: center; justify-content: center;
-            text-align: center; font-size: 11px; padding: 2px;
-            font-weight: 700; color: white;
-            line-height: 1.1; word-break: normal;
-            user-select: none;
-            border-radius: 2px;
-        }
+  --panel-bg:         rgba(32, 14, 4, 0.96);
+  --panel-border:     rgba(255, 214, 170, 0.25);
 
-        /* Alternate checkerboard for visual flair */
-        .cell:nth-child(odd) { filter: brightness(1.1); }
+  --accent-glow:      rgba(250, 190, 80, 0.6);
 
-        /* Free Space */
-        .cell.free {
-            background: white !important;
-            color: #333 !important;
-            font-size: 14px; font-weight: 900;
-            border: 2px solid #eee;
-        }
-        /* Add logo to free space via background-image later? For now text */
-        .cell.free::after { content: "🏈"; display: block; font-size: 16px; }
-        .cell.free { display: flex; flex-direction: column; gap: 0; }
-        
-        /* Interaction */
-        .is-me .cell:not(.free) { cursor: pointer; }
-        .is-me .cell:not(.free):hover { filter: brightness(1.3); }
-        .is-me .cell:not(.free):active { transform: scale(0.95); }
+  --input-bg:         rgba(25, 10, 4, 0.96);
+  --icon-bg:          rgba(30, 12, 6, 0.96);
 
-        /* Marked State */
-        .cell.marked {
-            background: #ffbf00 !important; /* Gold/Yellow mark */
-            color: black !important;
-            position: relative;
-        }
+  --text-main:        #fff4e5;
+  --text-muted:       rgba(255, 235, 210, 0.8);
 
-        /* Winning Line */
-        .cell.winning-line {
-            background: #fff !important;
-            color: black !important;
-            animation: flash 1s infinite;
-        }
-        @keyframes flash { 0%{opacity:1} 50%{opacity:0.5} 100%{opacity:1} }
+  --bg-top:           #ffdfa3;
+  --bg-mid:           #2b1a07;
+  --bg-bottom:        #050309;
 
-        /* --- REROLL CONTROLS --- */
-        .reroll-container {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.2);
-            padding: 8px 15px; border-radius: 12px;
-            font-weight: bold; color: white;
-            font-size: 0.9rem;
-        }
-        
-        .reroll-btn {
-            background: #ff4757; color: white; border: none;
-            padding: 8px 16px; border-radius: 8px;
-            font-family: 'Titan One', cursive;
-            font-size: 0.8rem; cursor: pointer;
-            margin: 0; width: auto; box-shadow: 0 4px 0 rgba(0,0,0,0.2);
-        }
-        .reroll-btn:active { transform: translateY(4px); box-shadow: none; }
-        .reroll-btn:disabled { background: #555; color: #aaa; box-shadow: none; transform: none; cursor: default; }
+  --canvas-top:       #5a2b0a;
+  --canvas-mid:       #2b1206;
+  --canvas-bottom:    #0c0502;
+}
 
-        /* --- FLOATING CONTROLS --- */
-        .float-controls {
-            position: fixed; bottom: 20px; right: 20px; z-index: 1000;
-            background: white; padding: 10px; border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            display: flex; gap: 10px; align-items: center;
-        }
+/* CULT – NECRO GREEN */
+body.theme-necro {
+  --accent-main:      #42ff9b;
+  --accent-secondary: #0ad06b;
+  --accent-soft:      #c8ffde;
 
-        /* --- ANIMATIONS --- */
-        .player-zone.winner {
-            border-color: #ffbf00;
-            animation: winnerPulse 1s infinite alternate;
-            z-index: 10;
-        }
-        @keyframes winnerPulse { from {box-shadow: 0 0 20px #ffbf00;} to {box-shadow: 0 0 60px #ffbf00;} }
+  --panel-bg:         rgba(3, 20, 14, 0.96);
+  --panel-border:     rgba(130, 255, 190, 0.3);
 
-        #celebration { position: fixed; inset: 0; pointer-events: none; z-index: 5000; overflow: hidden; }
-        .football { position: absolute; font-size: 5rem; animation: spinFly 3s linear infinite; }
-        @keyframes spinFly { from { transform: translate(-100px, 100vh) rotate(0deg); } to { transform: translate(120vw, -200px) rotate(720deg); } }
-        
-        .hidden { display: none !important; }
+  --accent-glow:      rgba(80, 255, 170, 0.65);
 
-    </style>
+  --input-bg:         rgba(3, 28, 18, 0.96);
+  --icon-bg:          rgba(5, 32, 24, 0.96);
+
+  --text-main:        #eafff6;
+  --text-muted:       rgba(210, 255, 235, 0.85);
+
+  --bg-top:           #3effa8;
+  --bg-mid:           #041a11;
+  --bg-bottom:        #020805;
+
+  --canvas-top:       #148854;
+  --canvas-mid:       #053625;
+  --canvas-bottom:    #02130c;
+}
+
+/* CULT – ELDRITCH VIOLET */
+body.theme-eldritch {
+  --accent-main:      #d084ff;
+  --accent-secondary: #7b3dff;
+  --accent-soft:      #f0d6ff;
+
+  --panel-bg:         rgba(18, 6, 36, 0.96);
+  --panel-border:     rgba(220, 175, 255, 0.3);
+
+  --accent-glow:      rgba(200, 120, 255, 0.7);
+
+  --input-bg:         rgba(22, 10, 45, 0.96);
+  --icon-bg:          rgba(26, 12, 50, 0.96);
+
+  --text-main:        #f8efff;
+  --text-muted:       rgba(240, 225, 255, 0.85);
+
+  --bg-top:           #c389ff;
+  --bg-mid:           #19063a;
+  --bg-bottom:        #050015;
+
+  --canvas-top:       #4c2a7b;
+  --canvas-mid:       #231149;
+  --canvas-bottom:    #0a041b;
+}
+
+/* CULT – BLOOD RITE */
+body.theme-blood {
+  --accent-main:      #ff4a4a;
+  --accent-secondary: #c21830;
+  --accent-soft:      #ffc4c4;
+
+  --panel-bg:         #28060a;
+  --panel-border:     rgba(255, 130, 140, 0.3);
+
+  --accent-glow:      rgba(255, 70, 100, 0.75);
+
+  --input-bg:         #2e0a10;
+  --icon-bg:          #2e0a10;
+
+  --text-main:        #ffeef0;
+  --text-muted:       rgba(255, 220, 225, 0.85);
+
+  --bg-top:           #ff7b7b;
+  --bg-mid:           #3b050a;
+  --bg-bottom:        #090004;
+
+  --canvas-top:       #7b1d26;
+  --canvas-mid:       #3a0810;
+  --canvas-bottom:    #140106;
+}
+
+/* FLAT SLATE — NO GLOW */
+body.theme-flat-slate {
+  --accent-main:      #f0b35b;
+  --accent-secondary: #c18a3f;
+  --accent-soft:      #f7ddac;
+
+  --panel-bg:         #1f2128;
+  --panel-border:     rgba(255, 255, 255, 0.12);
+
+  --accent-glow:      rgba(0,0,0,0); /* no glow */
+
+  --input-bg:         #252831;
+  --icon-bg:          #252831;
+
+  --text-main:        #f4f4f6;
+  --text-muted:       rgba(220, 222, 230, 0.85);
+
+  --bg-top:           #15171c;
+  --bg-mid:           #15171c;
+  --bg-bottom:        #15171c;
+
+  --canvas-top:       #1d2027;
+  --canvas-mid:       #1d2027;
+  --canvas-bottom:    #1d2027;
+}
+
+/* FLAT EMBER — NO GLOW */
+body.theme-flat-ember {
+  --accent-main:      #e08a5c;
+  --accent-secondary: #b3653c;
+  --accent-soft:      #f3c3a0;
+
+  --panel-bg:         #251516;
+  --panel-border:     rgba(255, 204, 174, 0.18);
+
+  --accent-glow:      rgba(0,0,0,0); /* no glow */
+
+  --input-bg:         #2c1819;
+  --icon-bg:          #2c1819;
+
+  --text-main:        #f6ece8;
+  --text-muted:       rgba(243, 220, 210, 0.86);
+
+  --bg-top:           #191012;
+  --bg-mid:           #191012;
+  --bg-bottom:        #191012;
+
+  --canvas-top:       #2a1718;
+  --canvas-mid:       #2a1718;
+  --canvas-bottom:    #2a1718;
+}
+
+/* 1950s – Pastel Diner (FLAT) */
+body.theme-1950s {
+  --accent-main:      #87C987; /* mint */
+  --accent-secondary: #EFA5A6; /* soft pink */
+  --accent-soft:      #FACA78; /* butter yellow */
+
+  --panel-bg:         #3b2a2b;
+  --panel-border:     rgba(249,229,218,0.35);
+
+  --accent-glow:      rgba(0,0,0,0); /* no glow */
+
+  --input-bg:         #473333;
+  --icon-bg:          #473333;
+
+  --text-main:        #fff7f2;
+  --text-muted:       rgba(249,229,218,0.9);
+
+  /* FLAT page background – cream */
+  --bg-top:           #F9E5DA;
+  --bg-mid:           #F9E5DA;
+  --bg-bottom:        #F9E5DA;
+
+  /* FLAT canvas background – sky pastel */
+  --canvas-top:       #BCE0F5;
+  --canvas-mid:       #BCE0F5;
+  --canvas-bottom:    #BCE0F5;
+}
+
+/* 1960s – Psychedelic / Mod (FLAT) */
+body.theme-1960s {
+  --accent-main:      #F77C43; /* bright orange */
+  --accent-secondary: #A9D33E; /* lime green */
+  --accent-soft:      #C681CC; /* mauve */
+
+  --panel-bg:         #26203a;
+  --panel-border:     rgba(211,190,71,0.35);
+
+  --accent-glow:      rgba(0,0,0,0); /* no glow */
+
+  --input-bg:         #2f2647;
+  --icon-bg:          #2f2647;
+
+  --text-main:        #fdf5ff;
+  --text-muted:       rgba(220,205,245,0.9);
+
+  /* FLAT page background – sunny yellow */
+  --bg-top:           #D3BE47;
+  --bg-mid:           #D3BE47;
+  --bg-bottom:        #D3BE47;
+
+  /* FLAT canvas background – teal */
+  --canvas-top:       #69AFAD;
+  --canvas-mid:       #69AFAD;
+  --canvas-bottom:    #69AFAD;
+}
+
+/* 1970s – Earthy Harvest (FLAT) */
+body.theme-1970s {
+  --accent-main:      #F4A127; /* mustard */
+  --accent-secondary: #E5771E; /* rust */
+  --accent-soft:      #FFECB4; /* warm cream */
+
+  --panel-bg:         #3b2617;
+  --panel-border:     rgba(150,75,0,0.4);
+
+  --accent-glow:      rgba(0,0,0,0); /* no glow */
+
+  --input-bg:         #442c1c;
+  --icon-bg:          #442c1c;
+
+  --text-main:        #fff6e6;
+  --text-muted:       rgba(255,236,180,0.9);
+
+  /* FLAT page background – cream */
+  --bg-top:           #FFECB4;
+  --bg-mid:           #FFECB4;
+  --bg-bottom:        #FFECB4;
+
+  /* FLAT canvas background – 70s brown */
+  --canvas-top:       #964B00;
+  --canvas-mid:       #964B00;
+  --canvas-bottom:    #964B00;
+}
+
+/* 1980s – Neon on Dark (FLAT) */
+body.theme-1980s {
+  --accent-main:      #FF6EC7; /* neon pink */
+  --accent-secondary: #1C75BC; /* electric blue */
+  --accent-soft:      #BF5FFF; /* bright purple */
+
+  --panel-bg:         #10192a;
+  --panel-border:     rgba(32,61,87,0.5);
+
+  --accent-glow:      rgba(0,0,0,0); /* no glow */
+
+  --input-bg:         #151f33;
+  --icon-bg:          #151f33;
+
+  --text-main:        #f0f4ff;
+  --text-muted:       rgba(210,220,255,0.9);
+
+  /* FLAT page background – navy */
+  --bg-top:           #203D57;
+  --bg-mid:           #203D57;
+  --bg-bottom:        #203D57;
+
+  /* FLAT canvas background – almost black */
+  --canvas-top:       #000814;
+  --canvas-mid:       #000814;
+  --canvas-bottom:    #000814;
+}
+
+/* 1990s – Teal / Purple / Grunge (FLAT) */
+body.theme-1990s {
+  --accent-main:      #68C7C1; /* teal */
+  --accent-secondary: #508FBA; /* purple-blue */
+  --accent-soft:      #00FF33; /* acid green */
+
+  --panel-bg:         #1e2628;
+  --panel-border:     rgba(104,199,193,0.4);
+
+  --accent-glow:      rgba(0,0,0,0); /* no glow */
+
+  --input-bg:         #252f33;
+  --icon-bg:          #252f33;
+
+  --text-main:        #e9f5f4;
+  --text-muted:       rgba(210,230,230,0.9);
+
+  /* FLAT page background – teal */
+  --bg-top:           #68C7C1;
+  --bg-mid:           #68C7C1;
+  --bg-bottom:        #68C7C1;
+
+  /* FLAT canvas background – denim */
+  --canvas-top:       #01204E;
+  --canvas-mid:       #01204E;
+  --canvas-bottom:    #01204E;
+}
+
+/* ============================================================
+   4) HEADER
+   ============================================================ */
+#app-header {
+  flex: 0 0 100%;
+  flex-flow: column;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  gap: 4px;
+}
+#app-header h1 {
+  font-size: 22px;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--accent-soft);
+  text-shadow: 0 0 12px rgba(0,0,0,0.9);
+}
+#app-header p {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   5) CONTROL PANEL
+   ============================================================ */
+#control {
+  display: flex;
+  flex: 0 0 320px;
+  flex-flow: column;
+  width: 320px;
+  grid-row-gap: 10px;
+  padding: 16px 18px 20px;
+  background: var(--panel-bg);
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.75);
+}
+
+.row { align-items: center; grid-column-gap: 10px; }
+
+.input {
+  flex: 1 0 auto;
+  flex-flow: column;
+  height: 36px;
+  background: var(--input-bg);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+.input span { font-size: 11px; color: var(--text-muted); }
+.input input { background: transparent; border: none; color: var(--text-main); }
+
+.icon-button {
+  width: 36px;
+  height: 36px;
+  font-size: 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--icon-bg);
+  border: 1px solid rgba(255,255,255,0.14);
+  cursor: pointer;
+}
+
+/* ============================================================
+   6) BUTTONS
+   ============================================================ */
+.button {
+  flex: 1 0 auto;
+  font-size: 14px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--accent-main), var(--accent-secondary));
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: #1b1307;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.65);
+}
+.button-small {
+  height: 28px;
+  font-size: 12px;
+  padding: 0 10px;
+}
+
+/* ============================================================
+   7) PREVIEW + CANVAS
+   ============================================================ */
+#preview {
+  flex: 1 1 auto;
+  flex-flow: column;
+  align-items: center;
+  padding: 10px 0;
+}
+
+#canvas {
+  border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  background: radial-gradient(
+    circle at top,
+    var(--canvas-top),
+    var(--canvas-mid) 65%,
+    var(--canvas-bottom)
+  );
+  box-shadow: 0 0 18px 2px var(--accent-glow);
+}
+#canvas.active { cursor: pointer; }
+
+/* override glow for flat themes: no glow, just subtle outline */
+body.theme-flat-slate #canvas,
+body.theme-flat-ember #canvas {
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.85);
+}
+
+/* ============================================================
+   8) GM BAR
+   ============================================================ */
+#gm-helper {
+  margin-top: 8px;
+  width: 100%;
+  max-width: 600px;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   9) THEME PICKER
+   ============================================================ */
+.theme-row {
+  margin-top: 8px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.theme-label {
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+#theme-name {
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-soft);
+}
+
+.theme-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.theme-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 4px 6px;
+  min-width: 84px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+}
+
+.theme-chip .swatch {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  margin-bottom: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.theme-chip .label {
+  font-size: 10px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* swatch colors */
+.swatch-witch      { background: #050609; }
+.swatch-gold       { background: linear-gradient(135deg,#ffbf3c,#f06c1c); }
+.swatch-necro      { background: linear-gradient(135deg,#42ff9b,#0ad06b); }
+.swatch-eldritch   { background: linear-gradient(135deg,#d084ff,#7b3dff); }
+.swatch-blood      { background: linear-gradient(135deg,#ff4a4a,#c21830); }
+.swatch-flat-slate { background: #22252c; }
+.swatch-flat-ember { background: #2b1818; }
+.swatch-1950s      { background: linear-gradient(90deg,#87C987,#EFA5A6,#F9E5DA); }
+.swatch-1960s      { background: linear-gradient(90deg,#A9D33E,#F77C43,#C681CC); }
+.swatch-1970s      { background: linear-gradient(90deg,#F4A127,#E5771E,#5A3D2B); }
+.swatch-1980s      { background: linear-gradient(90deg,#FF6EC7,#1C75BC,#BF5FFF); }
+.swatch-1990s      { background: linear-gradient(90deg,#68C7C1,#508FBA,#00FF33); }
+
+</style>
 </head>
-<body>
 
-    <!-- LOBBY -->
-    <div id="lobby">
-        <div class="lobby-panel">
-            <h1>NFL Beano</h1>
-            <h3 style="margin-top:0; color:#888;">v5.0</h3>
+<body class="theme-witch">
 
-            <div class="input-group">
-                <label>Name</label>
-                <input type="text" id="username" placeholder="ENTER NAME" maxlength="12">
-            </div>
+<header id="app-header">
+  <h1>CULT OF DIRTY RPG PRESENTS: <span>PICTURE PERFECT</span></h1>
+  <p>Load an image, generate the grid, then reveal it one click at a time.</p>
+</header>
 
-            <div class="input-group">
-                <label>Team Theme</label>
-                <select id="lobby-team-select">
-                    <option value="None">Select Team...</option>
-                    <!-- Teams JS -->
-                </select>
-            </div>
+<div id="control">
 
-            <div style="display:flex; gap:15px;">
-                <div class="input-group" style="flex:1">
-                    <label>Cards</label>
-                    <select id="lobby-count">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                    </select>
-                </div>
-                <div class="input-group" style="flex:2">
-                    <label>Room</label>
-                    <input type="text" id="room-code-input" placeholder="CODE" style="text-transform: uppercase;">
-                </div>
-            </div>
+  <div class="row">
+    <label class="input">
+      <span>URL to image</span>
+      <input id="file_input" />
+    </label>
+    <label class="icon-button" id="file_button">
+      <span style="transform: rotate(270deg)">➥</span>
+      <input type="file" id="file_browse" class="hidden" />
+    </label>
+  </div>
 
-            <div style="display:flex; gap:10px;">
-                <button class="btn-host" onclick="startGame(true)">HOST</button>
-                <button class="btn-join" onclick="startGame(false)">JOIN</button>
-            </div>
-        </div>
+  <div class="row">
+    <label class="input"><span>Font size</span><input id="font-size" type="number" min="10" max="30" /></label>
+  </div>
+
+  <div class="row">
+    <label class="input"><span>Width</span><input id="width" type="number" min="300" /></label>
+  </div>
+
+  <div class="row">
+    <label class="input"><span>Height</span><input id="height" type="number" min="300" /></label>
+  </div>
+
+  <div class="row">
+    <label class="input"><span>Columns</span><input id="column" type="number" min="1" /></label>
+  </div>
+
+  <div class="row">
+    <label class="input"><span>Rows</span><input id="row" type="number" min="1" /></label>
+  </div>
+
+  <div class="row">
+    <button class="button" id="generate" disabled>Generate Grid</button>
+    <button class="button" id="start" disabled>Start</button>
+    <button class="button hidden" id="stop">Stop</button>
+  </div>
+
+  <div class="row theme-row">
+    <div class="theme-label">
+      <span>Theme</span>
+      <span id="theme-name">Cult: Witch</span>
     </div>
-
-    <!-- GAME BOARD -->
-    <div id="game-ui" class="hidden">
-        <!-- Players will be injected here as equal zones -->
-        <div style="width:100%; text-align:center; color:white; font-size:2rem; font-family:'Titan One'; margin-top:100px;" id="waiting-msg">
-            Connecting to Host...
-        </div>
+    <div class="theme-buttons">
+      <button class="theme-chip" data-theme="witch">
+        <span class="swatch swatch-witch"></span>
+        <span class="label">Cult – Witch</span>
+      </button>
+      <button class="theme-chip" data-theme="gold">
+        <span class="swatch swatch-gold"></span>
+        <span class="label">Cult – Gold</span>
+      </button>
+      <button class="theme-chip" data-theme="necro">
+        <span class="swatch swatch-necro"></span>
+        <span class="label">Cult – Necro</span>
+      </button>
+      <button class="theme-chip" data-theme="eldritch">
+        <span class="swatch swatch-eldritch"></span>
+        <span class="label">Cult – Eldritch</span>
+      </button>
+      <button class="theme-chip" data-theme="blood">
+        <span class="swatch swatch-blood"></span>
+        <span class="label">Cult – Blood</span>
+      </button>
+      <button class="theme-chip" data-theme="flat-slate">
+        <span class="swatch swatch-flat-slate"></span>
+        <span class="label">Flat Slate</span>
+      </button>
+      <button class="theme-chip" data-theme="flat-ember">
+        <span class="swatch swatch-flat-ember"></span>
+        <span class="label">Flat Ember</span>
+      </button>
+      <button class="theme-chip" data-theme="1950s">
+        <span class="swatch swatch-1950s"></span>
+        <span class="label">1950s Pastel</span>
+      </button>
+      <button class="theme-chip" data-theme="1960s">
+        <span class="swatch swatch-1960s"></span>
+        <span class="label">1960s Mod</span>
+      </button>
+      <button class="theme-chip" data-theme="1970s">
+        <span class="swatch swatch-1970s"></span>
+        <span class="label">1970s Harvest</span>
+      </button>
+      <button class="theme-chip" data-theme="1980s">
+        <span class="swatch swatch-1980s"></span>
+        <span class="label">1980s Neon</span>
+      </button>
+      <button class="theme-chip" data-theme="1990s">
+        <span class="swatch swatch-1990s"></span>
+        <span class="label">1990s Teal</span>
+      </button>
     </div>
+  </div>
 
-    <!-- CONTROLS -->
-    <div class="float-controls hidden" id="controls">
-        <div style="font-weight:bold;">ROOM: <span id="room-display"></span></div>
-        <select id="ingame-team-select" onchange="changeMyTeam()" style="padding:5px; width:auto; font-size:0.8rem; border:1px solid #ccc;">
-            <!-- Teams JS -->
-        </select>
-        <button id="host-reset-btn" onclick="resetGame()" style="background:#ff4757; color:white; font-size:0.8rem; padding:5px 10px; width:auto; display:none;">RESET</button>
-    </div>
+</div>
 
-    <div id="celebration"></div>
+<div id="preview">
+  <canvas id="canvas" width="600" height="600" style="width:600px;height:600px;"></canvas>
+
+  <div id="gm-helper">
+    <span>CTRL+C: copy • CTRL+Z: undo • Theme chips change colors</span>
+    <button id="copy-btn" class="button button-small">Copy to Clipboard</button>
+  </div>
+
+  <i id="natural_dimension"></i>
+</div>
 
 <script>
-    // =================================================================
-    // 1. DATA & CONFIG
-    // =================================================================
-    // Updated logos to match your screenshot exactly
-    const TEAMS = {
-        "None": { p: "#333333", s: "#555555", logo: "nfl.svg" },
-        "ARI": { p: "#97233F", s: "#000000", logo: "arizona-cardinals.svg" },
-        "ATL": { p: "#A71930", s: "#000000", logo: "atlanta-falcons.svg" },
-        "BAL": { p: "#241773", s: "#9E7C0C", logo: "baltimore-ravens.svg" },
-        "BUF": { p: "#00338D", s: "#C60C30", logo: "buffalo-bills.svg" },
-        "CAR": { p: "#0085CA", s: "#000000", logo: "carolina-panthers.svg" },
-        "CHI": { p: "#0B162A", s: "#C83803", logo: "chicago-bears.svg" },
-        "CIN": { p: "#FB4F14", s: "#000000", logo: "cincinnati-bengals.svg" },
-        "CLE": { p: "#311D00", s: "#FF3C00", logo: "cleveland-browns.svg" },
-        "DAL": { p: "#003594", s: "#869397", logo: "dallas-cowboys.svg" },
-        "DEN": { p: "#FB4F14", s: "#002244", logo: "denver-broncos.svg" },
-        "DET": { p: "#0076B6", s: "#B0B7BC", logo: "detroit-lions.svg" },
-        "GB":  { p: "#203731", s: "#FFB612", logo: "green-bay-packers.svg" },
-        "HOU": { p: "#03202F", s: "#A71930", logo: "houston-texans.svg" },
-        "IND": { p: "#002C5F", s: "#A2AAAD", logo: "indianapolis-colts.svg" },
-        "JAX": { p: "#006778", s: "#9F792C", logo: "jacksonville-jaguars.svg" },
-        "KC":  { p: "#E31837", s: "#FFB81C", logo: "kansas-city-chiefs.svg" },
-        "LV":  { p: "#000000", s: "#A5ACAF", logo: "oakland-raiders.svg" }, /* Legacy name from your list */
-        "LAC": { p: "#0080C6", s: "#FFC20E", logo: "los-angeles-chargers.svg" },
-        "LAR": { p: "#003594", s: "#FFD100", logo: "los-angeles-rams.svg" },
-        "MIA": { p: "#008E97", s: "#FC4C02", logo: "miami-dolphins.svg" },
-        "MIN": { p: "#4F2683", s: "#FFC62F", logo: "minnesota-vikings.svg" },
-        "NE":  { p: "#002244", s: "#C60C30", logo: "new-england-patriots.svg" },
-        "NO":  { p: "#D3BC8D", s: "#101820", logo: "new-orleans-saints.svg" },
-        "NYG": { p: "#0B2265", s: "#A71930", logo: "new-york-giants.svg" },
-        "NYJ": { p: "#125740", s: "#FFFFFF", logo: "new-york-jets.svg" },
-        "PHI": { p: "#004C54", s: "#A5ACAF", logo: "philadelphia-eagles.svg" },
-        "PIT": { p: "#FFB612", s: "#101820", logo: "pittsburgh-steelers.svg" },
-        "SF":  { p: "#AA0000", s: "#B3995D", logo: "san-francisco-49ers.svg" },
-        "SEA": { p: "#002244", s: "#69BE28", logo: "seattle-seahawks.svg" },
-        "TB":  { p: "#D50A0A", s: "#34302B", logo: "tampa-bay-buccaneers.svg" },
-        "TEN": { p: "#0C2340", s: "#4B92DB", logo: "tennessee-titans.svg" },
-        "WAS": { p: "#5A1414", s: "#FFB612", logo: "washington-commanders.svg" }
+const element_canvas = document.getElementById("canvas");
+const element_file_button = document.getElementById("file_button");
+const element_file_input = document.getElementById("file_input");
+const element_file_browse = document.getElementById("file_browse");
+const element_font_size = document.getElementById("font-size");
+const element_width = document.getElementById("width");
+const element_height = document.getElementById("height");
+const element_row = document.getElementById("row");
+const element_column = document.getElementById("column");
+const element_generate = document.getElementById("generate");
+const element_start = document.getElementById("start");
+const element_stop = document.getElementById("stop");
+const element_copy_btn = document.getElementById("copy-btn");
+const themeNameEl = document.getElementById("theme-name");
+const ctx = element_canvas.getContext("2d");
+
+const colors = [
+  "#1abc9c","#2ecc71","#3498db","#9b59b6","#16a085","#27ae60","#2980b9",
+  "#8e44ad","#f1c40f","#e67e22","#e74c3c","#30336b","#f39c12","#d35400",
+  "#c0392b","#ffbe76","#f9ca24","#f0932b","#eb4d4b","#6ab04c","#7ed6df",
+  "#22a6b3","#e056fd","#be2edd","#686de0","#4834d4","#badc58","#b33771",
+  "#6d214f","#9aecdb","#bdc581","#fc427b"
+];
+
+const THEME_NAMES = {
+  "witch": "Cult: Witch",
+  "gold": "Cult: Gold Ember",
+  "necro": "Cult: Necro Green",
+  "eldritch": "Cult: Eldritch Violet",
+  "blood": "Cult: Blood Rite",
+  "flat-slate": "Flat Slate",
+  "flat-ember": "Flat Ember",
+  "1950s": "1950s Pastel Diner",
+  "1960s": "1960s Psychedelic / Mod",
+  "1970s": "1970s Earthy Harvest",
+  "1980s": "1980s Neon on Dark",
+  "1990s": "1990s Teal & Purple"
+};
+
+let source = "";
+let running = false;
+let font_size = 16;
+let width = 600;
+let height = 600;
+let natural_width = 0;
+let natural_height = 0;
+let quadrilateral_column = 4;
+let quadrilateral_row = 4;
+let quadrilateral_list = [];
+let quadrilateral_picked = [];
+
+document.addEventListener("DOMContentLoaded", () => {
+  element_file_input.value = source;
+  element_font_size.value = font_size;
+  element_width.value = width;
+  element_height.value = height;
+  element_row.value = quadrilateral_row + 1;
+  element_column.value = quadrilateral_column + 1;
+
+  element_canvas.addEventListener("click", handleCanvasClick);
+  element_file_input.addEventListener("change", handleFileInputChange);
+  element_file_browse.addEventListener("change", handleFileBrowseChange);
+
+  element_font_size.addEventListener("change", handleFontSizeChange);
+  element_width.addEventListener("change", handleSizeChange);
+  element_height.addEventListener("change", handleSizeChange);
+
+  element_row.addEventListener("change", handleGridChange);
+  element_column.addEventListener("change", handleGridChange);
+
+  element_generate.addEventListener("click", handleGenerate);
+  element_start.addEventListener("click", handleStart);
+  element_stop.addEventListener("click", handleStop);
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  document.querySelectorAll(".theme-chip").forEach(btn => {
+    btn.addEventListener("click", () => setTheme(btn.dataset.theme));
+  });
+
+  element_copy_btn.addEventListener("click", copyCanvasToClipboard);
+
+  updateCanvasSize();
+  setTheme("witch");
+});
+
+function setTheme(theme) {
+  const body = document.body;
+  const themes = [
+    "witch","gold","necro","eldritch","blood",
+    "flat-slate","flat-ember",
+    "1950s","1960s","1970s","1980s","1990s"
+  ];
+  themes.forEach(t => body.classList.remove("theme-"+t));
+  if (!themes.includes(theme)) theme = "witch";
+  body.classList.add("theme-"+theme);
+  if (themeNameEl) themeNameEl.textContent = THEME_NAMES[theme] || "Theme";
+}
+
+function copyCanvasToClipboard() {
+  if (!source) return;
+  element_canvas.toBlob(blob => {
+    if (!blob) return;
+    navigator.clipboard.write([new ClipboardItem({"image/png": blob})]);
+  });
+}
+
+function handleKeyDown(event) {
+  let code = event.code;
+  if (event.ctrlKey && event.code !== "ControlLeft" && event.code !== "ControlRight")
+    code = "CTRL+" + code;
+
+  if (code === "CTRL+KeyC") {
+    event.preventDefault();
+    copyCanvasToClipboard();
+  }
+
+  if (code === "CTRL+KeyZ") {
+    const index = quadrilateral_picked.pop();
+    const quad = quadrilateral_list.at(index);
+    if (quad) {
+      quad.checked = false;
+      drawQuadrilateralGrid();
+    }
+  }
+}
+
+function handleCanvasClick(event) {
+  if (!running) return;
+  const rect = event.target.getBoundingClientRect();
+  const x = event.pageX - rect.x - event.target.clientLeft;
+  const y = event.pageY - rect.y - event.target.clientTop;
+
+  for (let i = 0; i < quadrilateral_list.length; i++) {
+    const quad = quadrilateral_list.at(i);
+    if (!quad || quad.checked || !inQuadrilateral({x,y}, quad)) continue;
+
+    quad.checked = true;
+    quadrilateral_picked.push(i);
+    drawImage().then(drawQuadrilateralGrid);
+    return;
+  }
+}
+
+function handleFontSizeChange() {
+  font_size = element_font_size.value;
+  if (quadrilateral_list.length) handleGenerate();
+}
+
+function handleFileInputChange(e) {
+  source = e.target.value;
+  drawImage();
+  element_start.disabled = true;
+  element_generate.disabled = false;
+}
+
+function handleFileBrowseChange(e) {
+  const file = e.target.files[0];
+  if (!file || file.type.split("/")[0] !== "image") return;
+
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onloadend = () => {
+    source = reader.result.toString();
+    element_file_browse.value = "";
+    drawImage();
+    element_start.disabled = true;
+    element_generate.disabled = false;
+  };
+}
+
+function drawImage() {
+  const image = new Image();
+  image.src = source;
+  return new Promise((resolve, reject) => {
+    image.onload = () => {
+      natural_width = image.width;
+      natural_height = image.height;
+      document.getElementById("natural_dimension").innerText =
+        `Natural dimension: ${natural_width}x${natural_height}`;
+      ctx.drawImage(image, 0, 0, width, height);
+      resolve();
     };
+    image.onerror = reject;
+  });
+}
 
-    const EVENTS = [
-        "TOUCHDOWN", "FIELD GOAL", "FIRST DOWN", "2-PT CONV", "QB SCRAMBLE", "4TH DOWN TRY", 
-        "PASS > 20 YDS", "RUN > 10 YDS", "3RD & LONG", "SCREEN > 10", "PLAY ACTION", "QB SNEAK", 
-        "HAIL MARY", "EMPTY BACKFIELD", "SHOTGUN", "TRICK PLAY", "FAKE PUNT", "SACK", "TFL", 
-        "PASS DEFENDED", "TIPPED PASS", "THROWN AWAY", "INTERCEPTION", "FUMBLE", "TURNOVER", 
-        "DEFENSIVE TD", "GOAL LINE STAND", "3-AND-OUT", "RED ZONE STOP", "BLOCKED KICK", "PENALTY FLAG", 
-        "HOLDING", "FALSE START", "PASS INT", "DELAY OF GAME", "INT GROUNDING", 
-        "ROUGHING PASSER", "FACE MASK", "TIMEOUT", "2-MIN WARNING", "CHALLENGE FLAG", "MEASUREMENT", 
-        "OVERTIME", "INJURY", "COACH YELLING", "MASCOT", "BLIMP SHOT", "FACE PAINT", "SHIRTLESS FAN", 
-        "TRUCK AD", "BEER AD", "HELMET THROW", "CHEERLEADER", "CELEBRITY", "HURDLE", "JUKE", "ONE-HANDED CATCH"
-    ];
+function handleSizeChange() {
+  width = +element_width.value;
+  height = +element_height.value;
+  element_canvas.width = width;
+  element_canvas.height = height;
+  element_canvas.style.width = `${width}px`;
+  element_canvas.style.height = `${height}px`;
+}
 
-    const WINS = [
-        [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24], 
-        [0,5,10,15,20], [1,6,11,16,21], [2,7,12,17,22], [3,8,13,18,23], [4,9,14,19,24], 
-        [0,6,12,18,24], [4,8,12,16,20]
-    ];
+function handleGridChange() {
+  quadrilateral_column = +element_column.value - 1;
+  quadrilateral_row = +element_row.value - 1;
+  if (quadrilateral_list.length) handleGenerate();
+}
 
-    const BROKER = 'wss://broker.emqx.io:8084/mqtt';
-    const TOPIC = 'nfl_beano_v5';
-    let client, myId='u'+Math.random().toString(36).substr(2,5), myName="", myTeam="None", roomCode="", isHost=false;
-    let gameState = { players: {} };
+function handleGenerate() {
+  shuffle(colors);
+  generateQuadrilateralList();
+  drawQuadrilateralGrid();
+  element_start.disabled = false;
+}
 
-    // INIT UI
-    const ls = document.getElementById('lobby-team-select');
-    const gs = document.getElementById('ingame-team-select');
-    for(let t in TEAMS) {
-        if(t!=="None") {
-            ls.innerHTML += `<option value="${t}">${t}</option>`;
-            gs.innerHTML += `<option value="${t}">${t}</option>`;
-        }
+function handleStart() {
+  running = true;
+  element_canvas.classList.add("active");
+  disableControls(true);
+  element_start.classList.add("hidden");
+  element_stop.classList.remove("hidden");
+}
+
+function handleStop() {
+  running = false;
+  element_canvas.classList.remove("active");
+  disableControls(false);
+  element_stop.classList.add("hidden");
+  element_start.classList.remove("hidden");
+  drawImage();
+}
+
+function disableControls(disabled) {
+  const controls = [
+    element_file_input, element_file_button, element_file_browse,
+    element_font_size, element_width, element_height,
+    element_row, element_column, element_generate
+  ];
+  controls.forEach(c => {
+    if (!c) return;
+    if (disabled) c.setAttribute("disabled","");
+    else c.removeAttribute("disabled");
+  });
+}
+
+function generateQuadrilateralList() {
+  quadrilateral_list.length = 0;
+  quadrilateral_picked.length = 0;
+
+  const width_fraction = width / (quadrilateral_column + 1);
+  const height_fraction = height / (quadrilateral_row + 1);
+  const vertical = [];
+  const horizontal = [];
+
+  vertical.push({ x1:0,y1:0,x2:0,y2:height,formula:getLine(0,0,0,height) });
+  horizontal.push({ x1:0,y1:0,x2:width,y2:0,formula:getLine(0,width,0,0) });
+
+  for (let i=0; i<quadrilateral_column; i++) {
+    const x = getLinePoint(width_fraction, i);
+    vertical.push({ x1:x,y1:0,x2:x,y2:height,formula:getLine(x,x,0,height)});
+  }
+
+  for (let i=0; i<quadrilateral_row; i++) {
+    const y = getLinePoint(height_fraction, i);
+    horizontal.push({ x1:0,y1:y,x2:width,y2:y,formula:getLine(0,width,y,y)});
+  }
+
+  vertical.push({ x1:width,y1:0,x2:width,y2:height, formula:getLine(width,width,0,height) });
+  horizontal.push({ x1:0,y1:height,x2:width,y2:height, formula:getLine(0,width,height,height) });
+
+  for (let j=0; j<horizontal.length-1; j++) {
+    for (let i=0; i<vertical.length-1; i++) {
+      const quad = generateQuadrilateral(
+        vertical[i].formula,
+        vertical[i+1].formula,
+        horizontal[j].formula,
+        horizontal[j+1].formula
+      );
+      quadrilateral_list.push(quad);
     }
+  }
+}
 
-    // =================================================================
-    // 2. LOGIC
-    // =================================================================
-    function startGame(host) {
-        myName = document.getElementById('username').value.trim() || (host?"HOST":"GUEST");
-        myTeam = ls.value;
-        const count = parseInt(document.getElementById('lobby-count').value);
-        
-        isHost = host;
-        roomCode = document.getElementById('room-code-input').value.trim().toUpperCase();
-        if(host) roomCode = Math.random().toString(36).substr(2,4).toUpperCase();
-        
-        if(!roomCode) return alert("Need Code");
+function generateQuadrilateral(lv1, lv2, lh1, lh2) {
+  const top_left = getIntersection(lh1, lv1);
+  const top_right = getIntersection(lh1, lv2);
+  const bottom_left = getIntersection(lh2, lv1);
+  const bottom_right = getIntersection(lh2, lv2);
 
-        if(host) {
-            gameState.players[myId] = generatePlayer(myName, myTeam, count);
-        }
-        
-        enterUI();
-        connect();
-    }
+  const mid_top_x = (top_right.x + top_left.x)/2;
+  const mid_top_y = -(lh1.a*mid_top_x + lh1.c)/lh1.b;
+  const mid_bottom_x = (bottom_right.x + bottom_left.x)/2;
+  const mid_bottom_y = -(lh2.a*mid_top_x + lh2.c)/lh2.b;
+  const x_line = getLine(mid_top_x, mid_bottom_x, mid_top_y, mid_bottom_y);
 
-    function enterUI() {
-        document.getElementById('lobby').classList.add('hidden');
-        document.getElementById('controls').classList.remove('hidden');
-        document.getElementById('room-display').innerText = roomCode;
-        document.getElementById('ingame-team-select').value = myTeam;
-        if(isHost) document.getElementById('host-reset-btn').style.display = 'block';
-        render();
-    }
+  const mid_left_y = (top_left.y + bottom_left.y)/2;
+  const mid_left_x = -(lv1.b*mid_left_y + lv1.c)/lv1.a;
+  const mid_right_y = (top_right.y + bottom_right.y)/2;
+  const mid_right_x = -(lv2.b*mid_right_y + lv2.c)/lv2.a;
+  const y_line = getLine(mid_left_x, mid_right_x, mid_left_y, mid_right_y);
+  const center = getIntersection(x_line, y_line);
 
-    function generatePlayer(name, team, count) {
-        let p = { name, team, cards: [] };
-        for(let i=0; i<count; i++) {
-            p.cards.push(createCardData());
-        }
-        return p;
-    }
+  return { top_left, top_right, bottom_left, bottom_right, center, checked:false };
+}
 
-    function createCardData() {
-        let deck = [...EVENTS].sort(()=>Math.random()-0.5).slice(0,24);
-        deck.splice(12,0,"FREE");
-        return { events: deck, marked: [12], winLine: [], rerolls: 2 };
-    }
+function drawQuadrilateralGrid() {
+  let counter = 1;
+  for (let i=0; i<quadrilateral_list.length; i++) {
+    const q = quadrilateral_list.at(i);
+    if (q.checked) continue;
 
-    function rerollCard(pId, cardIndex) {
-        if(pId !== myId) return;
-        let p = gameState.players[myId];
-        let c = p.cards[cardIndex];
-        if(c.rerolls > 0) {
-            if(confirm("Reroll this card? New events will be generated.")) {
-                c.rerolls--;
-                let newData = createCardData();
-                c.events = newData.events;
-                c.marked = [12]; // Keep Free
-                c.winLine = [];
-                render();
-                send({ type: 'UPDATE', pData: p });
-            }
-        }
-    }
+    const {top_left, top_right, bottom_left, bottom_right, center} = q;
 
-    function changeMyTeam() {
-        myTeam = document.getElementById('ingame-team-select').value;
-        if(gameState.players[myId]) {
-            gameState.players[myId].team = myTeam;
-            render();
-            send({ type: 'UPDATE_TEAM', team: myTeam });
-        }
-    }
+    ctx.beginPath();
+    ctx.moveTo(top_left.x, top_left.y);
+    ctx.lineTo(top_right.x, top_right.y);
+    ctx.lineTo(bottom_right.x, bottom_right.y);
+    ctx.lineTo(bottom_left.x, bottom_left.y);
+    ctx.closePath();
 
-    function checkWin(m) {
-        for(let l of WINS) if(l.every(i=>m.includes(i))) return l;
-        return null;
-    }
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fill();
 
-    // =================================================================
-    // 3. RENDER
-    // =================================================================
-    function render() {
-        const board = document.getElementById('game-ui');
-        board.innerHTML = '';
+    ctx.font = `${font_size}px Arial`;
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "black";
+    ctx.fillText(String(counter++), center.x, center.y);
+  }
+}
 
-        // Sort: Me first, then others
-        const pIds = Object.keys(gameState.players).sort((a,b) => {
-            if(a === myId) return -1;
-            if(b === myId) return 1;
-            return 0;
-        });
+function updateCanvasSize() {
+  element_canvas.width = width;
+  element_canvas.height = height;
+  element_canvas.style.width = `${width}px`;
+  element_canvas.style.height = `${height}px`;
+}
 
-        if(pIds.length === 0) {
-            document.getElementById('waiting-msg').style.display = 'block';
-            return;
-        } else {
-             // remove waiting msg if exists
-            const wm = document.getElementById('waiting-msg');
-            if(wm) wm.style.display = 'none';
-        }
+function inQuadrilateral(point, q) {
+  const {top_left, top_right, bottom_left, bottom_right} = q;
+  const diag = getLength(bottom_right, top_left);
+  const top_len = getLength(top_right, top_left);
+  const left_len = getLength(bottom_left, top_left);
+  const right_len = getLength(bottom_right, top_right);
+  const bottom_len = getLength(bottom_right, bottom_left);
 
-        pIds.forEach(id => {
-            renderPlayerZone(gameState.players[id], id === myId, board);
-        });
-    }
+  const t1 = getTriangleHeight(bottom_len, diag, left_len);
+  const t2 = getTriangleHeight(top_len, diag, right_len);
+  const area = 0.5 * diag * (t1 + t2);
 
-    function renderPlayerZone(p, isMe, container) {
-        const colors = TEAMS[p.team] || TEAMS["None"];
-        
-        // The Player Zone Wrapper
-        const zone = document.createElement('div');
-        zone.className = 'player-zone';
-        zone.style.setProperty('--primary', colors.p);
-        zone.style.setProperty('--secondary', colors.s);
-        
-        // Winner Animation
-        if(p.cards.some(c => c.winLine.length > 0)) zone.classList.add('winner');
+  const A1 = getTriangleArea(point, top_left, top_right);
+  const A2 = getTriangleArea(point, top_right, bottom_right);
+  const A3 = getTriangleArea(point, bottom_right, bottom_left);
+  const A4 = getTriangleArea(point, bottom_left, top_left);
 
-        // --- Header ---
-        const header = document.createElement('div');
-        header.className = 'zone-header';
+  return Math.round(area) === Math.round(A1+A2+A3+A4);
+}
 
-        // Logo
-        const img = document.createElement('img');
-        img.className = 'team-logo';
-        img.src = `logos/${colors.logo}`;
-        img.onerror = function(){ this.style.display='none'; }; 
-        header.appendChild(img);
+function getTriangleArea(p1, p2, p3) {
+  const a = getLength(p1, p2);
+  const b = getLength(p1, p3);
+  const c = getLength(p2, p3);
+  const s = (a+b+c)/2;
+  return Math.sqrt(s*(s-a)*(s-b)*(s-c));
+}
 
-        // Name
-        const name = document.createElement('div');
-        name.className = 'player-name';
-        name.innerText = p.name + (p.cards.some(c=>c.winLine.length>0) ? " 🏆" : "");
-        header.appendChild(name);
-        
-        zone.appendChild(header);
+function getLength(p1, p2) {
+  return Math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2);
+}
 
-        // --- Cards Row ---
-        const row = document.createElement('div');
-        row.className = 'cards-row';
+function getTriangleHeight(a,b,c) {
+  const p1 = a+b+c;
+  const p2 = -a+b+c;
+  const p3 = a-b+c;
+  const p4 = a+b-c;
+  return (0.5*Math.sqrt(p1*p2*p3*p4))/b;
+}
 
-        p.cards.forEach((c, cIdx) => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'card-wrapper';
+function getLinePoint(frac, i) {
+  return Math.floor(Math.random()*frac+1) + (i+0.5)*frac;
+}
 
-            const card = document.createElement('div');
-            card.className = 'bingo-card';
+function getLine(x1,x2,y1,y2) {
+  const a = y1 - y2;
+  const b = x2 - x1;
+  const c = x1*y2 - x2*y1;
+  return {a,b,c};
+}
 
-            // Card Title
-            const title = document.createElement('div');
-            title.className = 'card-title';
-            title.innerText = `CARD ${cIdx+1}`;
-            if(c.winLine.length>0) {
-                title.style.background = "#ffbf00"; 
-                title.style.color = "black";
-            }
-            card.appendChild(title);
+function getIntersection(l1,l2) {
+  const d = l1.a*l2.b - l2.a*l1.b;
+  return {
+    x : -((l2.b*l1.c - l1.b*l2.c)/d),
+    y : -((l1.a*l2.c - l2.a*l1.c)/d)
+  };
+}
 
-            // Grid
-            const grid = document.createElement('div');
-            grid.className = 'grid';
-
-            c.events.forEach((evt, idx) => {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                
-                // Free Space
-                if(idx===12) {
-                    cell.classList.add('free');
-                    cell.innerHTML = "FREE<br><span style='font-size:16px'>🏈</span>";
-                } else {
-                    cell.innerText = evt;
-                }
-
-                // Colors
-                if(isMe) {
-                    zone.classList.add('is-me');
-                    cell.onclick = () => {
-                        if(idx===12) return;
-                        if(c.marked.includes(idx)) c.marked = c.marked.filter(x=>x!==idx);
-                        else c.marked.push(idx);
-                        
-                        const w = checkWin(c.marked);
-                        c.winLine = w || [];
-                        if(w) celebrate();
-
-                        render();
-                        send({ type:'UPDATE', pData: p });
-                    }
-                }
-
-                // Marked / Win
-                if(c.marked.includes(idx)) cell.classList.add('marked');
-                if(c.winLine.includes(idx)) cell.classList.add('winning-line');
-                
-                grid.appendChild(cell);
-            });
-            card.appendChild(grid);
-            wrapper.appendChild(card);
-
-            // Reroll (Me Only)
-            if(isMe) {
-                const rrDiv = document.createElement('div');
-                rrDiv.className = 'reroll-container';
-                
-                const countSpan = document.createElement('span');
-                countSpan.innerText = `REROLLS: ${c.rerolls}`;
-                
-                const btn = document.createElement('button');
-                btn.className = 'reroll-btn';
-                btn.innerText = "ROLL NEW";
-                if(c.rerolls <= 0) btn.disabled = true;
-                else {
-                    btn.onclick = () => rerollCard(myId, cIdx);
-                }
-
-                rrDiv.appendChild(countSpan);
-                rrDiv.appendChild(btn);
-                wrapper.appendChild(rrDiv);
-            }
-
-            row.appendChild(wrapper);
-        });
-
-        zone.appendChild(row);
-        container.appendChild(zone);
-    }
-
-
-    // =================================================================
-    // 4. NETWORK
-    // =================================================================
-    function connect() {
-        client = mqtt.connect(BROKER);
-        const t = `${TOPIC}/${roomCode}`;
-        client.on('connect', ()=>{
-            client.subscribe(t);
-            if(isHost) setInterval(()=>send({type:'STATE', state:gameState}), 1000);
-            else {
-                const cnt = parseInt(document.getElementById('lobby-count').value);
-                let iv = setInterval(()=>{
-                    if(gameState.players[myId]) clearInterval(iv);
-                    else send({type:'JOIN', name:myName, team:myTeam, count:cnt});
-                }, 2000);
-            }
-        });
-
-        client.on('message', (topic, msg)=>{
-            const m = JSON.parse(msg.toString());
-            if(m.sender === myId) return;
-
-            if(isHost) {
-                if(m.type==='JOIN' && !gameState.players[m.sender]) {
-                    gameState.players[m.sender] = generatePlayer(m.name, m.team, m.count);
-                    render();
-                }
-                if(m.type==='UPDATE') {
-                    gameState.players[m.sender] = m.pData;
-                    if(m.pData.cards.some(c=>c.winLine.length>0)) celebrate();
-                    render();
-                }
-                if(m.type==='UPDATE_TEAM') {
-                    if(gameState.players[m.sender]) {
-                        gameState.players[m.sender].team = m.team;
-                        render();
-                    }
-                }
-            } else {
-                if(m.type==='STATE') {
-                    let local = gameState.players[myId];
-                    gameState = m.state;
-                    if(local) gameState.players[myId] = local; 
-                    
-                    if(Object.values(gameState.players).some(p=>p.cards.some(c=>c.winLine.length>0)) && !window.hasCel) {
-                        celebrate(); window.hasCel=true;
-                    }
-                    render();
-                }
-            }
-        });
-    }
-
-    function send(p) { p.sender=myId; client.publish(`${TOPIC}/${roomCode}`, JSON.stringify(p)); }
-
-    function resetGame() {
-        if(confirm("Reset all cards?")) {
-            Object.keys(gameState.players).forEach(id=>{
-                let p = gameState.players[id];
-                gameState.players[id] = generatePlayer(p.name, p.team, p.cards.length);
-            });
-            window.hasCel=false;
-            render();
-        }
-    }
-
-    function celebrate() {
-        const b = document.getElementById('celebration');
-        for(let i=0; i<20; i++){
-            let f = document.createElement('div'); f.className='football'; f.innerHTML='🏈';
-            f.style.left='-100px'; f.style.top=Math.random()*80+'vh';
-            f.style.animationDuration=(Math.random()*2+2)+'s';
-            b.appendChild(f); setTimeout(()=>f.remove(), 4000);
-        }
-    }
+function shuffle(arr) {
+  let i = arr.length;
+  while (i > 0) {
+    const r = Math.floor(Math.random()*i--);
+    [arr[i], arr[r]] = [arr[r], arr[i]];
+  }
+  return arr;
+}
 </script>
 </body>
 </html>
